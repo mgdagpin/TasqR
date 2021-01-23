@@ -26,7 +26,7 @@ namespace TasqR
             foreach (var assembly in assembliesToScan)
             {
                 assembly.DefinedTypes
-                .Where(t => (typeof(IJobTasqHandler)).IsAssignableFrom(t) && t.IsConcrete())
+                .Where(t => t.IsAssignableTo(typeof(IJobTasqHandler)) && t.IsConcrete())
                 .Select(a => new
                 {
                     Type = a,
@@ -40,7 +40,7 @@ namespace TasqR
                     if (a.Interface != null)
                     {
                         var _cmd = a.Interface.GenericTypeArguments
-                            .Single(a => (typeof(ITasq)).IsAssignableFrom(a));
+                            .Single(a => a.IsAssignableTo(typeof(ITasq)));
 
                         services.AddTransient(a.Interface, a.Type);
 
