@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>Vincent Dagpin, Marcelius Dagpin</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageIcon>TasqR.png</PackageIcon>
+    <Copyright>Copyright (c) 2021</Copyright>
+    <Version>1.0.3</Version>
+    <PackageReleaseNotes>Separation of service registration.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\Downloads\TasqR.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+</Project>
