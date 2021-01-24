@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasqR", "TasqR\TasqR.csproj", "{82544C2D-CA5A-42A9-8484-16534B65A1AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasqR.Extensions.Microsoft.DependencyInjection", "TasqR.Extensions.Microsoft.DependencyInjection\TasqR.Extensions.Microsoft.DependencyInjection.csproj", "{C83A1C2C-EDA6-42F3-BC54-CC09CEAD5BA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasqR.Extensions.Microsoft.DependencyInjection", "TasqR.Extensions.Microsoft.DependencyInjection\TasqR.Extensions.Microsoft.DependencyInjection.csproj", "{C83A1C2C-EDA6-42F3-BC54-CC09CEAD5BA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{45A0C390-C67D-4D54-BE03-381370F191AB}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\ReadMe.md = Docs\ReadMe.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
