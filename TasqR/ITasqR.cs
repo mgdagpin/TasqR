@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TasqR
+﻿namespace TasqR
 {
     public interface ITasqR
     {
@@ -12,6 +6,8 @@ namespace TasqR
         event ProcessEventHandler OnInitializeExecuted;
         event ProcessEventHandler OnBeforeRunExecuting;
         event ProcessEventHandler OnBeforeRunExecuted;
+        event ProcessEventHandler OnRunExecuting;
+        event ProcessEventHandler OnRunExecuted;
         event ProcessEventHandler OnAfterRunExecuting;
         event ProcessEventHandler OnAfterRunExecuted;
 
