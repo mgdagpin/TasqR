@@ -8,7 +8,9 @@
     <PackageIcon>TasqR.png</PackageIcon>
     <Copyright>Copyright (c) 2021</Copyright>
     <Version>1.0.7</Version>
-    <PackageReleaseNotes>Separation of service registration.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/mgdagpin/TasqR</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/mgdagpin/TasqR</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
