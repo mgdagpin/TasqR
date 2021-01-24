@@ -7,12 +7,12 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageIcon>TasqR.png</PackageIcon>
     <Copyright>Copyright (c) 2021</Copyright>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <PackageReleaseNotes>Separation of service registration.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\Downloads\TasqR.png">
+    <None Include="..\TasqR.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

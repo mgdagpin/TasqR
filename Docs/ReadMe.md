@@ -17,3 +17,11 @@ Open a command prompt (cmd) to *bin/release/* path
 
 #### Push Command
  nuget push TasqR.**{VERSION}**.nupkg -Source https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/nuget.sprikiwiki.ltd/nuget/v3/index.json -ApiKey **{Personal Token (PAT)}**
+
+
+
+----
+#### Using Package Manager Console
+```
+dotnet nuget push {PATH of *.nupkg} -s https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/nuget.sprikiwiki.ltd/nuget/v3/index.json -k {PAT}
+```

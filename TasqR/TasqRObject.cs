@@ -6,87 +6,116 @@ namespace TasqR
 {
     public class TasqRObject : ITasqR
     {
+        public Guid ID { get; private set; }
+
         public event ProcessEventHandler OnInitializeExecuting;
         public event ProcessEventHandler OnInitializeExecuted;
         public event ProcessEventHandler OnBeforeRunExecuting;
         public event ProcessEventHandler OnBeforeRunExecuted;
+        public event ProcessEventHandler OnRunExecuting;
+        public event ProcessEventHandler OnRunExecuted;
         public event ProcessEventHandler OnAfterRunExecuting;
         public event ProcessEventHandler OnAfterRunExecuted;
 
-        private readonly ITasqHandlerCollection handlerCollection;
+        private readonly ITasqHandlerCollection p_HandlerCollection;
 
         public TasqRObject(ITasqHandlerCollection handlerCollection)
         {
-            this.handlerCollection = handlerCollection;
+            p_HandlerCollection = handlerCollection;
+            ID = Guid.NewGuid();
         }
 
-        
 
         public void Run(ITasq tasq)
         {
-            var _tt = tasq.GetType();
-            var _t = handlerCollection.TasqHanders[_tt];
+            var tasqType = tasq.GetType();
+            var tasqHandlerType = p_HandlerCollection.TasqHanders[tasqType];
 
-            var _a = (IJobTasqHandler)handlerCollection.GetService(_t);
+            var tasqHandlerInstance = (IJobTasqHandler)p_HandlerCollection.GetService(tasqHandlerType);
 
-            if (_a == null)
+            if (tasqHandlerInstance == null)
             {
-                throw new Exception($"Type {GetFullName(_t)} not registered");
+                throw new Exception($"Type {GetFullName(tasqHandlerType)} not registered");
             }
 
-            OnInitializeExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.Initialize(tasq);
-            OnInitializeExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var initializeProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnInitializeExecuting?.Invoke(tasq, initializeProcessEventArgs);
+            tasqHandlerInstance.Initialize(tasq);
+            initializeProcessEventArgs.StopStopwatch();
+            OnInitializeExecuted?.Invoke(tasq, initializeProcessEventArgs);
 
-            OnBeforeRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.BeforeRun(tasq);
-            OnBeforeRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var onBeforeRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnBeforeRunExecuting?.Invoke(tasq, onBeforeRunProcessEventArgs);
+            tasqHandlerInstance.BeforeRun(tasq);
+            onBeforeRunProcessEventArgs.StopStopwatch();
+            OnBeforeRunExecuted?.Invoke(tasq, onBeforeRunProcessEventArgs);
 
-            if (_t.GetGenericArguments().Length == 3)
+            if (tasqHandlerType.GetGenericArguments().Length == 3)
             {
-                while (_a.ReadKey(out object key))
+                while (tasqHandlerInstance.ReadKey(out object key))
                 {
-                    _a.Run(key, tasq);
+                    var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+                    OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
+                    tasqHandlerInstance.Run(key, tasq);
+                    onRunProcessEventArgs.StopStopwatch();
+                    OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
+
                 }
             }
             else
             {
-                _a.Run(null, tasq);
+                var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+                OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
+                tasqHandlerInstance.Run(null, tasq);
+                onRunProcessEventArgs.StopStopwatch();
+                OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
             }
 
-            OnAfterRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.AfterRun(tasq);
-            OnAfterRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var onAfterRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnAfterRunExecuting?.Invoke(tasq, onAfterRunProcessEventArgs);
+            tasqHandlerInstance.AfterRun(tasq);
+            onAfterRunProcessEventArgs.StopStopwatch();
+            OnAfterRunExecuted?.Invoke(tasq, onAfterRunProcessEventArgs);
 
-            _a.Dispose();
+            tasqHandlerInstance.Dispose();
         }
 
         public TResponse Run<TResponse>(ITasq<TResponse> tasq)
         {
-            var _t = typeof(IJobTasqHandler<,>).MakeGenericType(tasq.GetType(), typeof(TResponse));
+            var tasqHandlerType = typeof(IJobTasqHandler<,>).MakeGenericType(tasq.GetType(), typeof(TResponse));
+            var tasqHandlerInstance = (IJobTasqHandler)p_HandlerCollection.GetService(tasqHandlerType);
 
-            var _a = (IJobTasqHandler)handlerCollection.GetService(_t);
-
-            if (_a == null)
+            if (tasqHandlerInstance == null)
             {
-                throw new Exception($"Type {GetFullName(_t)} not registered");
+                throw new Exception($"Type {GetFullName(tasqHandlerType)} not registered");
             }
 
-            OnInitializeExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.Initialize(tasq);
-            OnInitializeExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var initializeProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnInitializeExecuting?.Invoke(tasq, initializeProcessEventArgs);
+            tasqHandlerInstance.Initialize(tasq);
+            initializeProcessEventArgs.StopStopwatch();
+            OnInitializeExecuted?.Invoke(tasq, initializeProcessEventArgs);
 
-            OnBeforeRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.BeforeRun(tasq);
-            OnBeforeRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var onBeforeRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnBeforeRunExecuting?.Invoke(tasq, onBeforeRunProcessEventArgs);
+            tasqHandlerInstance.BeforeRun(tasq);
+            onBeforeRunProcessEventArgs.StopStopwatch();
+            OnBeforeRunExecuted?.Invoke(tasq, onBeforeRunProcessEventArgs);
 
-            var retVal = (TResponse)_a.Run(null, tasq);
+            var onRunProcessEventArgs = new ProcessEventArgs<TResponse>(this).StartStopwatch();
+            OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
+            var retVal = (TResponse)tasqHandlerInstance.Run(null, tasq);
+            onRunProcessEventArgs.SetReturnedValue(retVal);
+            onRunProcessEventArgs.StopStopwatch();
+            OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
 
-            OnAfterRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
-            _a.AfterRun(tasq);
-            OnAfterRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
+            var onAfterRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+            OnAfterRunExecuting?.Invoke(tasq, onAfterRunProcessEventArgs);
+            tasqHandlerInstance.AfterRun(tasq);
+            onAfterRunProcessEventArgs.StopStopwatch();
+            OnAfterRunExecuted?.Invoke(tasq, onAfterRunProcessEventArgs);
 
-            _a.Dispose();
+            tasqHandlerInstance.Dispose();
 
             return retVal;
         }
@@ -96,26 +125,26 @@ namespace TasqR
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
         private string GetFullName(Type t)
         {
             if (!t.IsGenericType)
                 return t.Name;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.Append(t.Name.Substring(0, t.Name.LastIndexOf("`")));
-            sb.Append(t.GetGenericArguments().Aggregate("<",
+            sb.Append
+                (
+                    t.GetGenericArguments().Aggregate
+                        (
+                            "<",
+                            delegate (string aggregate, Type type)
+                            {
+                                return aggregate + (aggregate == "<" ? "" : ",") + GetFullName(type);
+                            }
+                        )
+                );
 
-                delegate (string aggregate, Type type)
-                {
-                    return aggregate + (aggregate == "<" ? "" : ",") + GetFullName(type);
-                }
-                ));
             sb.Append(">");
 
             return sb.ToString();
