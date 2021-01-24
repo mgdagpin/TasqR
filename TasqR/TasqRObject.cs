@@ -6,12 +6,21 @@ namespace TasqR
 {
     public class TasqRObject : ITasqR
     {
+        public event ProcessEventHandler OnInitializeExecuting;
+        public event ProcessEventHandler OnInitializeExecuted;
+        public event ProcessEventHandler OnBeforeRunExecuting;
+        public event ProcessEventHandler OnBeforeRunExecuted;
+        public event ProcessEventHandler OnAfterRunExecuting;
+        public event ProcessEventHandler OnAfterRunExecuted;
+
         private readonly ITasqHandlerCollection handlerCollection;
 
         public TasqRObject(ITasqHandlerCollection handlerCollection)
         {
             this.handlerCollection = handlerCollection;
         }
+
+        
 
         public void Run(ITasq tasq)
         {
@@ -25,9 +34,13 @@ namespace TasqR
                 throw new Exception($"Type {GetFullName(_t)} not registered");
             }
 
+            OnInitializeExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.Initialize(tasq);
+            OnInitializeExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
+            OnBeforeRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.BeforeRun(tasq);
+            OnBeforeRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
             if (_t.GetGenericArguments().Length == 3)
             {
@@ -41,7 +54,9 @@ namespace TasqR
                 _a.Run(null, tasq);
             }
 
+            OnAfterRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.AfterRun(tasq);
+            OnAfterRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
             _a.Dispose();
         }
@@ -57,13 +72,19 @@ namespace TasqR
                 throw new Exception($"Type {GetFullName(_t)} not registered");
             }
 
+            OnInitializeExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.Initialize(tasq);
+            OnInitializeExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
+            OnBeforeRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.BeforeRun(tasq);
+            OnBeforeRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
             var retVal = (TResponse)_a.Run(null, tasq);
 
+            OnAfterRunExecuting?.Invoke(tasq, new ProcessEventArgs(this));
             _a.AfterRun(tasq);
+            OnAfterRunExecuted?.Invoke(tasq, new ProcessEventArgs(this));
 
             _a.Dispose();
 
