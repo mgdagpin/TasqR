@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TasqR
 {
@@ -11,7 +9,10 @@ namespace TasqR
     public interface IJobTasqHandler : IBaseTasqHandler, IDisposable
     {
         void Initialize(object tasq);
-        bool ReadKey(out object tasqKey);
+
+        IEnumerable<object> SelectionCriteria(object tasq);
+
+
         void BeforeRun(object tasq);
         object Run(object key, object tasq);
         void AfterRun(object tasq);
@@ -20,10 +21,9 @@ namespace TasqR
     public interface IJobTasqHandler<in TTasq> : IJobTasqHandler
         where TTasq : ITasq
     {
-        bool IJobTasqHandler.ReadKey(out object tasqKey)
+        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
         {
-            tasqKey = null;
-            return false;
+            return null;
         }
 
         object IJobTasqHandler.Run(object key, object tasq)
@@ -57,11 +57,11 @@ namespace TasqR
     public interface IJobTasqHandler<TTasq, TResponse> : IJobTasqHandler
         where TTasq : ITasq<TResponse>
     {
-        bool IJobTasqHandler.ReadKey(out object tasqKey)
+        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
         {
-            tasqKey = null;
-            return false;
+            return null;
         }
+
         void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
         void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
         object IJobTasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
@@ -77,20 +77,19 @@ namespace TasqR
     public interface IJobTasqHandler<TTasq, TKey, TResponse> : IJobTasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
-        bool IJobTasqHandler.ReadKey(out object tasqKey)
+        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
         {
-            bool res = ReadKey(out TKey result);
-            tasqKey = result;
-
-            return res;
+            return SelectionCriteria((TTasq)tasq)
+                .Select(a => (object)a);
         }
+
         object IJobTasqHandler.Run(object key, object tasq) => Run((TKey)key, (TTasq)tasq);
 
         void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
         void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
         void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
-        bool ReadKey(out TKey tasqKey);
+        IEnumerable<TKey> SelectionCriteria(TTasq tasq);
 
         void Initialize(TTasq tasq);
         void BeforeRun(TTasq tasq);
