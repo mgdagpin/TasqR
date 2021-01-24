@@ -23,5 +23,5 @@ Open a command prompt (cmd) to *bin/release/* path
 ----
 #### Using Package Manager Console
 ```
-dotnet nuget push TasqR.1.0.6.nupkg -s https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/nuget.sprikiwiki.ltd/nuget/v3/index.json -k {PAT}
+dotnet nuget push {PATH of *.nupkg} -s https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/nuget.sprikiwiki.ltd/nuget/v3/index.json -k {PAT}
 ```
