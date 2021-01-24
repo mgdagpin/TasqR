@@ -10,11 +10,11 @@ namespace TasqR
 
     public interface IJobTasqHandler : IBaseTasqHandler, IDisposable
     {
-        void Initialize();
+        void Initialize(object tasq);
         bool ReadKey(out object tasqKey);
-        void BeforeRun();
+        void BeforeRun(object tasq);
         object Run(object key, object tasq);
-        void AfterRun();
+        void AfterRun(object tasq);
     }
 
     public interface IJobTasqHandler<in TTasq> : IJobTasqHandler
@@ -33,7 +33,25 @@ namespace TasqR
             return null;
         }
 
+        void IJobTasqHandler.Initialize(object tasq)
+        {
+            Initialize((TTasq)tasq);
+        }
+
+        void IJobTasqHandler.BeforeRun(object tasq)
+        {
+            BeforeRun((TTasq)tasq);
+        }
+
+        void IJobTasqHandler.AfterRun(object tasq)
+        {
+            AfterRun((TTasq)tasq);
+        }
+
+        void Initialize(TTasq tasq);
+        void BeforeRun(TTasq tasq);
         void Run(TTasq tasq);
+        void AfterRun(TTasq tasq);
     }
 
     public interface IJobTasqHandler<TTasq, TResponse> : IJobTasqHandler
@@ -44,14 +62,20 @@ namespace TasqR
             tasqKey = null;
             return false;
         }
+        void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
+        void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
         object IJobTasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
+        void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
+        void Initialize(TTasq tasq);
+        void BeforeRun(TTasq tasq);
         TResponse Run(TTasq tasq);
+        void AfterRun(TTasq tasq);
     }
 
 
-    public interface IJobTasqHandler<Ttasq, TKey, TResponse> : IJobTasqHandler
-        where Ttasq : ITasq<TKey, TResponse>
+    public interface IJobTasqHandler<TTasq, TKey, TResponse> : IJobTasqHandler
+        where TTasq : ITasq<TKey, TResponse>
     {
         bool IJobTasqHandler.ReadKey(out object tasqKey)
         {
@@ -60,10 +84,19 @@ namespace TasqR
 
             return res;
         }
-        object IJobTasqHandler.Run(object key, object tasq) => Run((TKey)key, (Ttasq)tasq);
+        object IJobTasqHandler.Run(object key, object tasq) => Run((TKey)key, (TTasq)tasq);
+
+        void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
+        void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
+        void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
         bool ReadKey(out TKey tasqKey);
-        TResponse Run(TKey key, Ttasq tasq);
+
+        void Initialize(TTasq tasq);
+        void BeforeRun(TTasq tasq);
+
+        TResponse Run(TKey key, TTasq tasq);
+        void AfterRun(TTasq tasq);
     }
 
 }

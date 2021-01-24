@@ -25,9 +25,9 @@ namespace TasqR
                 throw new Exception($"Type {GetFullName(_t)} not registered");
             }
 
-            _a.Initialize();
+            _a.Initialize(tasq);
 
-            _a.BeforeRun();
+            _a.BeforeRun(tasq);
 
             if (_t.GetGenericArguments().Length == 3)
             {
@@ -41,7 +41,7 @@ namespace TasqR
                 _a.Run(null, tasq);
             }
 
-            _a.AfterRun();
+            _a.AfterRun(tasq);
 
             _a.Dispose();
         }
@@ -57,13 +57,13 @@ namespace TasqR
                 throw new Exception($"Type {GetFullName(_t)} not registered");
             }
 
-            _a.Initialize();
+            _a.Initialize(tasq);
 
-            _a.BeforeRun();
+            _a.BeforeRun(tasq);
 
             var retVal = (TResponse)_a.Run(null, tasq);
 
-            _a.AfterRun();
+            _a.AfterRun(tasq);
 
             _a.Dispose();
 
