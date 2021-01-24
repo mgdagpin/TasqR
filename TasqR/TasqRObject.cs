@@ -10,10 +10,17 @@ namespace TasqR
 
         public event ProcessEventHandler OnInitializeExecuting;
         public event ProcessEventHandler OnInitializeExecuted;
+
+        public event ProcessEventHandler OnSelectionCriteriaExecuting;
+        public event ProcessEventHandler OnSelectionCriteriaExecuted;
+
+
         public event ProcessEventHandler OnBeforeRunExecuting;
         public event ProcessEventHandler OnBeforeRunExecuted;
+
         public event ProcessEventHandler OnRunExecuting;
         public event ProcessEventHandler OnRunExecuted;
+
         public event ProcessEventHandler OnAfterRunExecuting;
         public event ProcessEventHandler OnAfterRunExecuted;
 
@@ -52,14 +59,22 @@ namespace TasqR
 
             if (tasqHandlerType.GetGenericArguments().Length == 3)
             {
-                while (tasqHandlerInstance.ReadKey(out object key))
-                {
-                    var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                    OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
-                    tasqHandlerInstance.Run(key, tasq);
-                    onRunProcessEventArgs.StopStopwatch();
-                    OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
+                var onSelectionCriteriaProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+                OnSelectionCriteriaExecuting?.Invoke(tasq, onSelectionCriteriaProcessEventArgs);
+                var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
+                onSelectionCriteriaProcessEventArgs.StopStopwatch();
+                OnSelectionCriteriaExecuted?.Invoke(tasq, onSelectionCriteriaProcessEventArgs);
 
+                if (selectionCriteria != null)
+                {
+                    foreach (var eachSelection in selectionCriteria)
+                    {
+                        var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
+                        OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
+                        tasqHandlerInstance.Run(eachSelection, tasq);
+                        onRunProcessEventArgs.StopStopwatch();
+                        OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
+                    }
                 }
             }
             else
