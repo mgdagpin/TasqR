@@ -16,4 +16,4 @@ New Token -> Name (Optional) -> Scopes: **Packaging** Read, Write & Manage -> Cr
 Open a command prompt (cmd) to *bin/release/* path
 
 #### Push Command
- nuget push TasqR.**{VERSION}**.nupkg -Source https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/SprikiwikiLTD/nuget/v3/index.json -ApiKey **{Personal Token (PAT)}**
+ nuget push TasqR.**{VERSION}**.nupkg -Source https://pkgs.dev.azure.com/sprikiwikiltd/_packaging/nuget.sprikiwiki.ltd/nuget/v3/index.json -ApiKey **{Personal Token (PAT)}**
