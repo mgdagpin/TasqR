@@ -13,7 +13,7 @@ namespace TasqR
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
             services.AddScoped<ITasqR, TasqRObject>();
-            services.AddSingleton<ITasqHandlerCollection>(p => new TasqHandlerCollection(passMeHere, p));
+            services.AddScoped<ITasqHandlerCollection>(p => new TasqHandlerCollection(passMeHere, p));
 
             var assembliesToScan = assemblies.Distinct().ToArray();
             var excludedInterfaces = new[]
