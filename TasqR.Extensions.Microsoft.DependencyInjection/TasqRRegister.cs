@@ -1,19 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TasqR
 {
+
+
     public static class TasqRRegister
     {
-        static Dictionary<Type, Type> passMeHere = new Dictionary<Type, Type>();
+        static Dictionary<Type, Type> s_TypeReferenceDictionary = new Dictionary<Type, Type>();
+        static List<TypeTasqReference> s_AllTypeReferences = new List<TypeTasqReference>();
 
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
             services.AddScoped<ITasqR, TasqRObject>();
-            services.AddScoped<ITasqHandlerCollection>(p => new TasqHandlerCollection(passMeHere, p));
+            services.AddScoped<ITasqHandlerCollection>(p => new TasqHandlerCollection(s_TypeReferenceDictionary, s_AllTypeReferences, p));
 
             var assembliesToScan = assemblies.Distinct().ToArray();
             var excludedInterfaces = new[]
@@ -27,7 +30,7 @@ namespace TasqR
             {
                 assembly.DefinedTypes
                 .Where(t => t.IsAssignableTo(typeof(IJobTasqHandler)) && t.IsConcrete())
-                .Select(a => new
+                .Select(a => new TypeTasqReference
                 {
                     Type = a,
                     Interface = a.GetInterfaces()
@@ -44,7 +47,9 @@ namespace TasqR
 
                         services.AddTransient(a.Interface, a.Type);
 
-                        passMeHere[_cmd] = a.Interface;
+                        s_TypeReferenceDictionary[_cmd] = a.Interface;
+
+                        s_AllTypeReferences.Add(a);
                     }
                 });
             }
@@ -58,19 +63,26 @@ namespace TasqR
 
     public class TasqHandlerCollection : ITasqHandlerCollection
     {
-        private readonly IServiceProvider seviceProvider;
+        private readonly IServiceProvider p_SeviceProvider;
 
         public Dictionary<Type, Type> TasqHanders { get; private set; }
+        public IEnumerable<TypeTasqReference> TypeReferences { get; private set; }
 
-        public TasqHandlerCollection(Dictionary<Type, Type> passMeHere, IServiceProvider seviceProvider)
+        public TasqHandlerCollection
+            (
+                Dictionary<Type, Type> typeReferenceDictionary,
+                IEnumerable<TypeTasqReference> allTypeReferences,
+                IServiceProvider seviceProvider
+            )
         {
-            TasqHanders = passMeHere;
-            this.seviceProvider = seviceProvider;
+            TasqHanders = typeReferenceDictionary;
+            p_SeviceProvider = seviceProvider;
+            TypeReferences = allTypeReferences;
         }
 
         public object GetService(Type type)
         {
-            return this.seviceProvider.GetService(type);
+            return this.p_SeviceProvider.GetService(type);
         }
     }
 }
