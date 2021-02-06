@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace TasqR
 {
-
-
     public static class TasqRRegister
     {
-        static Dictionary<Type, Type> s_TypeReferenceDictionary = new Dictionary<Type, Type>();
-        static List<TypeTasqReference> s_AllTypeReferences = new List<TypeTasqReference>();
+        static ITasqHandlerResolver s_TasqHandlerResolver = new MicrosoftDependencyTasqHandlerResolver();
 
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
-            services.AddScoped<ITasqR, TasqRObject>();
-            services.AddScoped<ITasqHandlerCollection>(p => new TasqHandlerCollection(s_TypeReferenceDictionary, s_AllTypeReferences, p));
+            services.AddScoped<ITasqR>(p =>
+            {
+                ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver)
+                    .SetServiceProvider(p);
+
+                return new TasqRObject(s_TasqHandlerResolver);
+            });
 
             var assembliesToScan = assemblies.Distinct().ToArray();
             var excludedInterfaces = new[]
@@ -34,8 +35,7 @@ namespace TasqR
                 {
                     Type = a,
                     Interface = a.GetInterfaces()
-                        .Where(a => !excludedInterfaces.Any(b => b == a))
-                        .FirstOrDefault()
+                        .FirstOrDefault(a => !excludedInterfaces.Any(b => b == a))
                 })
                 .ToList()
                 .ForEach(a =>
@@ -47,9 +47,7 @@ namespace TasqR
 
                         services.AddTransient(a.Interface, a.Type);
 
-                        s_TypeReferenceDictionary[_cmd] = a.Interface;
-
-                        s_AllTypeReferences.Add(a);
+                        s_TasqHandlerResolver.Register(_cmd, a.Interface);
                     }
                 });
             }
@@ -61,28 +59,18 @@ namespace TasqR
         }
     }
 
-    public class TasqHandlerCollection : ITasqHandlerCollection
+    public class MicrosoftDependencyTasqHandlerResolver : TasqHandlerResolver
     {
-        private readonly IServiceProvider p_SeviceProvider;
+        private IServiceProvider p_ServiceProvider;
 
-        public Dictionary<Type, Type> TasqHanders { get; private set; }
-        public IEnumerable<TypeTasqReference> TypeReferences { get; private set; }
-
-        public TasqHandlerCollection
-            (
-                Dictionary<Type, Type> typeReferenceDictionary,
-                IEnumerable<TypeTasqReference> allTypeReferences,
-                IServiceProvider seviceProvider
-            )
+        public void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            TasqHanders = typeReferenceDictionary;
-            p_SeviceProvider = seviceProvider;
-            TypeReferences = allTypeReferences;
+            p_ServiceProvider = serviceProvider;
         }
 
-        public object GetService(Type type)
+        protected override object GetService(Type type)
         {
-            return this.p_SeviceProvider.GetService(type);
+            return p_ServiceProvider.GetService(type);
         }
     }
 }

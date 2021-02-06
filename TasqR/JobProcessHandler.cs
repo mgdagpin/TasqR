@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TasqR
 {
@@ -30,7 +32,18 @@ namespace TasqR
 
         public virtual void Initialize(TProcess tasq) { }
 
-        public abstract void Run(TProcess process);
+        public virtual void Run(TProcess process)
+        {
+            Task.Run(async () =>
+            {
+                await RunAsync(process);
+            }).GetAwaiter().GetResult();
+        }
+
+        public virtual Task RunAsync(TProcess process, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public abstract class JobProcessHandler<TProcess, TResponse> : IJobTasqHandler<TProcess, TResponse>

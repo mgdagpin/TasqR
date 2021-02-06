@@ -65,6 +65,7 @@ namespace TasqR
         void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
         void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
         object IJobTasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
+
         void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
         void Initialize(TTasq tasq);
