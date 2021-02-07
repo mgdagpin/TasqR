@@ -82,10 +82,7 @@ namespace TasqR
             }).GetAwaiter().GetResult();
         }
 
-        public virtual Task<IEnumerable<TKey>> SelectionCriteriaAsync(TProcess tasq)
-        {
-            return Task.FromResult<IEnumerable<TKey>>(null);
-        }
+        public abstract Task<IEnumerable<TKey>> SelectionCriteriaAsync(TProcess tasq);
 
         public override TResponse Run(TKey key, TProcess process)
         {
