@@ -12,10 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{45A0C390-C
 		Docs\ReadMe.md = Docs\ReadMe.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasqR.TestProject", "TasqR.TestProject\TasqR.TestProject.csproj", "{3E76A782-D098-4698-AD20-BF8F24639B78}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasqR.TestProject.Microsoft.DependencyInjection", "TasqR.TestProject.Microsoft.DependencyInjection\TasqR.TestProject.Microsoft.DependencyInjection.csproj", "{54E1499D-A30C-4A5D-A4A0-5D74C0A27324}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,14 +26,6 @@ Global
 		{C83A1C2C-EDA6-42F3-BC54-CC09CEAD5BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C83A1C2C-EDA6-42F3-BC54-CC09CEAD5BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C83A1C2C-EDA6-42F3-BC54-CC09CEAD5BA4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E76A782-D098-4698-AD20-BF8F24639B78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E76A782-D098-4698-AD20-BF8F24639B78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E76A782-D098-4698-AD20-BF8F24639B78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E76A782-D098-4698-AD20-BF8F24639B78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54E1499D-A30C-4A5D-A4A0-5D74C0A27324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54E1499D-A30C-4A5D-A4A0-5D74C0A27324}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54E1499D-A30C-4A5D-A4A0-5D74C0A27324}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54E1499D-A30C-4A5D-A4A0-5D74C0A27324}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
