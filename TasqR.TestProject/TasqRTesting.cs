@@ -39,21 +39,7 @@ namespace TasqR.TestProject
 
             Assert.AreEqual(9, finalNumber);
         }
-
-        [TestMethod]
-        public async Task CanRunAsynchronously()
-        {
-            var testModel = new Test3Model { StartNumber = 10 };
-            var handlerResolver = new TasqHandlerResolver();
-
-            handlerResolver.Register<CommandWithAsyncWithoutReturnHandler>();
-
-            var tasqR = new TasqRObject(handlerResolver);
-
-            await tasqR.RunAsync(new CommandWithAsyncWithoutReturn(testModel));
-
-            Assert.AreEqual(11, testModel.StartNumber);
-        }
+        
 
         [TestMethod]
         public void CanRunCommandWithKeys()

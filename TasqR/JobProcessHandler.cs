@@ -88,8 +88,18 @@ namespace TasqR
 
         public virtual void BeforeRun(TProcess tasq) { }
 
+        public virtual TResponse Run(TKey key, TProcess process)
+        {
+            return Task.Run(async () =>
+            {
+                return await RunAsync(key, process);
+            }).GetAwaiter().GetResult();
+        }
 
-        public abstract TResponse Run(TKey key, TProcess process);
+        public virtual Task<TResponse> RunAsync(TKey key, TProcess process, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
 
 
         public virtual void AfterRun(TProcess tasq) { }

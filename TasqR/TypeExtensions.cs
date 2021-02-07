@@ -7,6 +7,16 @@ namespace TasqR
     {
         public static bool HasBaseType(this Type type, Type baseType)
         {
+            if (type == baseType)
+            {
+                return true;
+            }
+
+            if (type.BaseType == null || type.BaseType == typeof(object))
+            {
+                return false;
+            }
+
             if (type.BaseType.IsGenericType
                 && type.BaseType.GetGenericTypeDefinition() == baseType)
             {
@@ -16,11 +26,6 @@ namespace TasqR
             if (type.BaseType == baseType)
             {
                 return true;
-            }
-
-            if (type.BaseType == null || type.BaseType == typeof(object))
-            {
-                return false;
             }
 
             return type.BaseType.HasBaseType(baseType);

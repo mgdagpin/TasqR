@@ -46,9 +46,16 @@ namespace TasqR
 
         public TResponse Run<TResponse>(ITasq<TResponse> tasq)
         {
+            var tasqType = tasq.GetType();
+
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+
             return Task.Run(async () =>
             {
-                return await RunAsync(tasq);
+                var ret = await RunAsyncImplementation2(tasqHandlerInstance, tasq);
+                return (TResponse)ret;
+
             }).GetAwaiter().GetResult();
         }
 
@@ -60,43 +67,47 @@ namespace TasqR
             }).GetAwaiter().GetResult();
         }
 
-        /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
-        private string GetFullName(Type t)
+        public async Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
         {
-            if (!t.IsGenericType)
-                return t.Name;
-            var sb = new StringBuilder();
+            //var tasqType = tasq.GetType();
 
-            sb.Append(t.Name.Substring(0, t.Name.LastIndexOf("`")));
-            sb.Append
-                (
-                    t.GetGenericArguments().Aggregate
-                        (
-                            "<",
-                            delegate (string aggregate, Type type)
-                            {
-                                return aggregate + (aggregate == "<" ? "" : ",") + GetFullName(type);
-                            }
-                        )
-                );
+            //var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
 
-            sb.Append(">");
+            return await Task.Run(async () =>
+            {
+                await RunAsyncImplementation((ITasq)tasq, cancellationToken);
 
-            return sb.ToString();
+                return (TResponse)default;
+            });
         }
 
+        public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
+        {
+            var tasqType = tasq.GetType();
 
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
 
+            await Task.Run(async () =>
+            {
+                await RunAsyncImplementation2(tasqHandlerInstance, tasq, cancellationToken);
+            });
+        }
 
-        private async Task<object> RunAsyncImplementation(ITasq tasq, CancellationToken cancellationToken = default)
+        public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+        {
+            return await Task.Run(async () =>
+            {
+                var result = await RunAsyncImplementation(tasq, cancellationToken);
+
+                return (TResponse)result;
+            });
+        }
+
+        private async Task<object> RunAsyncImplementation2(IJobTasqHandler tasqHandlerInstance, ITasq tasq, CancellationToken cancellationToken = default)
         {
             return await Task.Run(() =>
             {
                 object retVal = null;
-
-                var tasqType = tasq.GetType();
-
-                var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
 
                 TasqProcessEventHandler.Invoke
                 (
@@ -165,33 +176,47 @@ namespace TasqR
 
 
 
-
-        public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
+        /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
+        private string GetFullName(Type t)
         {
-            await Task.Run(async () =>
-            {
-                await RunAsyncImplementation(tasq, cancellationToken);
-            });
+            if (!t.IsGenericType)
+                return t.Name;
+            var sb = new StringBuilder();
+
+            sb.Append(t.Name.Substring(0, t.Name.LastIndexOf("`")));
+            sb.Append
+                (
+                    t.GetGenericArguments().Aggregate
+                        (
+                            "<",
+                            delegate (string aggregate, Type type)
+                            {
+                                return aggregate + (aggregate == "<" ? "" : ",") + GetFullName(type);
+                            }
+                        )
+                );
+
+            sb.Append(">");
+
+            return sb.ToString();
         }
 
-        public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+
+
+
+        private async Task<object> RunAsyncImplementation(ITasq tasq, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(async () =>
+            var tasqType = tasq.GetType();
+
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+
+            return Task.Run(async () =>
             {
-                var result = await RunAsyncImplementation((ITasq)tasq, cancellationToken);
+                var ret = await RunAsyncImplementation2(tasqHandlerInstance, tasq);
+                return ret;
 
-                return (TResponse)result;
-            });
-        }
-
-        public async Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
-        {
-            return await Task.Run(async () =>
-            {
-                await RunAsyncImplementation((ITasq)tasq, cancellationToken);
-
-                return (TResponse)default;
-            });
+            }).GetAwaiter().GetResult();
         }
     }
 }
