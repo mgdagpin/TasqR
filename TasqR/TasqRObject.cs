@@ -39,9 +39,13 @@ namespace TasqR
         #region Run (No return)
         public void Run(ITasq tasq)
         {
+            var tasqType = tasq.GetType();
+
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+
             Task.Run(async () =>
             {
-                await RunAsync(tasq);
+                await RunAsyncImplementation(tasqHandlerInstance, tasq);
             }).GetAwaiter().GetResult();
         }
 
@@ -61,9 +65,15 @@ namespace TasqR
         #region Run (with return)
         public TResponse Run<TResponse>(ITasq<TResponse> tasq)
         {
+            var tasqType = tasq.GetType();
+
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+
             return Task.Run(async () =>
             {
-                return await RunAsync(tasq);
+                var ret = await RunAsyncImplementation(tasqHandlerInstance, tasq);
+
+                return (TResponse)ret;
             }).GetAwaiter().GetResult();
         }
 
@@ -85,9 +95,15 @@ namespace TasqR
         #region Run (with key)
         public TResponse Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
         {
+            var tasqType = tasq.GetType();
+
+            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+
             return Task.Run(async () =>
             {
-                return await RunAsync(tasq);
+                var ret = await RunAsyncImplementation(tasqHandlerInstance, tasq);
+
+                return (TResponse)ret;
             }).GetAwaiter().GetResult();
         }
 
