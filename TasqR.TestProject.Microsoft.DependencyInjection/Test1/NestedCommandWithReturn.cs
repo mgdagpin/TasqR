@@ -10,7 +10,7 @@
         public int StartNumber { get; }
     }
 
-    public class NestedCommandWithReturnHandler : JobProcessHandler<NestedCommandWithReturn, int>
+    public class NestedCommandWithReturnHandler : TasqHandler<NestedCommandWithReturn, int>
     {
         private readonly ITasqR p_TasqR;
 

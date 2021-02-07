@@ -1,8 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.TestProject.Test1;
 using TasqR.TestProject.Test2;
-using TasqR.TestProject.Test3;
 using TasqR.TestProject.Test4;
 
 namespace TasqR.TestProject
@@ -39,7 +37,7 @@ namespace TasqR.TestProject
 
             Assert.AreEqual(9, finalNumber);
         }
-        
+
 
         [TestMethod]
         public void CanRunCommandWithKeys()
@@ -63,7 +61,7 @@ namespace TasqR.TestProject
 
             Assert.AreEqual(typeof(SampleCommandWithoutReturn), typeTaskRef.TasqProcess);
             Assert.AreEqual(typeof(SampleCommandWithoutReturnHandler), typeTaskRef.HandlerImplementation);
-            Assert.AreEqual(typeof(IJobTasqHandler<SampleCommandWithoutReturn>), typeTaskRef.HandlerInterface);
+            Assert.AreEqual(typeof(ITasqHandler<SampleCommandWithoutReturn>), typeTaskRef.HandlerInterface);
         }
     }
 }

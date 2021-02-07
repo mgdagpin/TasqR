@@ -10,7 +10,7 @@
         public int StartNumber { get; internal set; }
     }
 
-    public class CommandWithReturnHandler : JobProcessHandler<CommandWithReturn, int>
+    public class CommandWithReturnHandler : TasqHandler<CommandWithReturn, int>
     {
         public override int Run(CommandWithReturn process)
         {

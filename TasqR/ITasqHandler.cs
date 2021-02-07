@@ -5,8 +5,7 @@ using System.Linq;
 namespace TasqR
 {
     public interface IBaseTasqHandler { }
-
-    public interface IJobTasqHandler : IBaseTasqHandler, IDisposable
+    public interface ITasqHandler : IBaseTasqHandler, IDisposable
     {
         void Initialize(object tasq);
 
@@ -17,33 +16,32 @@ namespace TasqR
         object Run(object key, object tasq);
         void AfterRun(object tasq);
     }
-
-    public interface IJobTasqHandler<in TTasq> : IJobTasqHandler
+    public interface ITasqHandler<TTasq> : ITasqHandler
         where TTasq : ITasq
     {
-        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
+        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
         {
             return null;
         }
 
-        object IJobTasqHandler.Run(object key, object tasq)
+        object ITasqHandler.Run(object key, object tasq)
         {
             Run((TTasq)tasq);
 
             return null;
         }
 
-        void IJobTasqHandler.Initialize(object tasq)
+        void ITasqHandler.Initialize(object tasq)
         {
             Initialize((TTasq)tasq);
         }
 
-        void IJobTasqHandler.BeforeRun(object tasq)
+        void ITasqHandler.BeforeRun(object tasq)
         {
             BeforeRun((TTasq)tasq);
         }
 
-        void IJobTasqHandler.AfterRun(object tasq)
+        void ITasqHandler.AfterRun(object tasq)
         {
             AfterRun((TTasq)tasq);
         }
@@ -53,42 +51,39 @@ namespace TasqR
         void Run(TTasq tasq);
         void AfterRun(TTasq tasq);
     }
-
-    public interface IJobTasqHandler<TTasq, TResponse> : IJobTasqHandler
+    public interface ITasqHandler<TTasq, TResponse> : ITasqHandler
         where TTasq : ITasq<TResponse>
     {
-        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
+        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
         {
             return null;
         }
 
-        void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
-        void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
-        object IJobTasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
+        void ITasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
+        void ITasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
+        object ITasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
 
-        void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
+        void ITasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
         void Initialize(TTasq tasq);
         void BeforeRun(TTasq tasq);
         TResponse Run(TTasq tasq);
         void AfterRun(TTasq tasq);
     }
-
-
-    public interface IJobTasqHandler<TTasq, TKey, TResponse> : IJobTasqHandler
+    public interface ITasqHandler<TTasq, TKey, TResponse> : ITasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
-        IEnumerable<object> IJobTasqHandler.SelectionCriteria(object tasq)
+        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
         {
             return SelectionCriteria((TTasq)tasq)
                 .Select(a => (object)a);
         }
 
-        object IJobTasqHandler.Run(object key, object tasq) => Run(key == null ? default : (TKey)key, (TTasq)tasq);
+        object ITasqHandler.Run(object key, object tasq) => Run(key == null ? default : (TKey)key, (TTasq)tasq);
 
-        void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
-        void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
-        void IJobTasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
+        void ITasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
+        void ITasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
+        void ITasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
 
         IEnumerable<TKey> SelectionCriteria(TTasq tasq);
 
@@ -98,5 +93,4 @@ namespace TasqR
         TResponse Run(TKey key, TTasq tasq);
         void AfterRun(TTasq tasq);
     }
-
 }

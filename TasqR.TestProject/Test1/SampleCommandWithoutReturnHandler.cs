@@ -1,6 +1,6 @@
 ﻿namespace TasqR.TestProject.Test1
 {
-    public class SampleCommandWithoutReturnHandler : JobProcessHandler<SampleCommandWithoutReturn>
+    public class SampleCommandWithoutReturnHandler : TasqHandler<SampleCommandWithoutReturn>
     {
         public override void Run(SampleCommandWithoutReturn process)
         {

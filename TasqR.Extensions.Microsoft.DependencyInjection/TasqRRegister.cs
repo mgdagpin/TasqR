@@ -13,8 +13,7 @@ namespace TasqR
         {
             services.AddScoped<ITasqR>(p =>
             {
-                ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver)
-                    .SetServiceProvider(p);
+                ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver).SetServiceProvider(p);
 
                 return new TasqRObject(s_TasqHandlerResolver);
             });
@@ -30,12 +29,6 @@ namespace TasqR
                     s_TasqHandlerResolver.Register(ttHandler);
 
                     services.AddTransient(ttHandler.HandlerImplementation);
-
-                    //services.AddTransient
-                    //   (
-                    //       ttHandler.HandlerInterface,
-                    //       ttHandler.HandlerImplementation
-                    //   );
                 }
             }
         }
@@ -52,21 +45,9 @@ namespace TasqR
             p_ServiceProvider = serviceProvider;
         }
 
-        public override void Register(TypeTasqReference handler)
-        {
-            if (TasqHanders.ContainsKey(handler.TasqProcess))
-            {
-
-            }
-
-            TasqHanders[handler.TasqProcess] = handler;
-        }
-
         protected override object GetService(TypeTasqReference typeTasqReference)
         {
-            var svc = p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
-
-            return svc;
+            return p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace TasqR.TestProject.Test4
         public bool AllAreCorrect { get; set; }
     }
 
-    public class CommandWithKeyAsyncHandler : JobProcessHandler<CommandWithKeyAsync, int, bool>
+    public class CommandWithKeyAsyncHandler : TasqHandler<CommandWithKeyAsync, int, bool>
     {
         private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
 

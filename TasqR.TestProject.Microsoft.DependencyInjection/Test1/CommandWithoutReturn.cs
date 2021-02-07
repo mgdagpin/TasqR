@@ -14,7 +14,7 @@
 
         public TestModel TestModel { get; }
 
-        public class CommandWithoutReturnHandler : JobProcessHandler<CommandWithoutReturn>
+        public class CommandWithoutReturnHandler : TasqHandler<CommandWithoutReturn>
         {
             public override void Run(CommandWithoutReturn process)
             {

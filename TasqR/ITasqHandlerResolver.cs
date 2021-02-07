@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TasqR
 {
     public interface ITasqHandlerResolver
     {
-        void Register(TypeTasqReference handler);
-        void Register<THandler>() where THandler : IJobTasqHandler;
+        IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
-        IJobTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq;
-        IJobTasqHandler ResolveHandler(Type type);
+        void Register(TypeTasqReference handler);
+        void Register<THandler>() where THandler : ITasqHandler;
+
+        ITasqHandler ResolveHandler<TTasq>() where TTasq : ITasq;
+        ITasqHandler ResolveHandler(Type type);
     }
 }

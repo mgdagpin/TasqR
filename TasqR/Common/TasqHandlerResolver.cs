@@ -8,18 +8,19 @@ namespace TasqR
     public class TasqHandlerResolver : ITasqHandlerResolver
     {
         protected Dictionary<Type, TypeTasqReference> TasqHanders { get; } = new Dictionary<Type, TypeTasqReference>();
+        public IEnumerable<TypeTasqReference> RegisteredReferences => TasqHanders.Select(a => a.Value);
 
         protected virtual object GetService(TypeTasqReference typeTasqReference)
         {
             return Activator.CreateInstance(typeTasqReference.HandlerImplementation);
         }
 
-        public virtual IJobTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
+        public virtual ITasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
         {
             return ResolveHandler(typeof(TTasq));
         }
 
-        public virtual IJobTasqHandler ResolveHandler(Type type)
+        public virtual ITasqHandler ResolveHandler(Type type)
         {
             if (!TasqHanders.ContainsKey(type))
             {
@@ -28,7 +29,7 @@ namespace TasqR
 
             var tasqHandlerType = TasqHanders[type];
 
-            var tasqHandlerInstance = (IJobTasqHandler)GetService(tasqHandlerType);
+            var tasqHandlerInstance = (ITasqHandler)GetService(tasqHandlerType);
 
             if (tasqHandlerInstance == null)
             {
@@ -67,7 +68,7 @@ namespace TasqR
             TasqHanders[handler.TasqProcess] = handler;
         }
 
-        public virtual void Register<THandler>() where THandler : IJobTasqHandler
+        public virtual void Register<THandler>() where THandler : ITasqHandler
         {
             Register(TypeTasqReference.Resolve<THandler>());
         }

@@ -18,7 +18,7 @@ namespace TasqR.TestProject.Test3
         public Test3Model Model { get; }
     }
 
-    public class CommandWithAsyncWithoutReturnHandler : JobProcessHandler<CommandWithAsyncWithoutReturn>
+    public class CommandWithAsyncWithoutReturnHandler : TasqHandler<CommandWithAsyncWithoutReturn>
     {
         public override async Task RunAsync(CommandWithAsyncWithoutReturn process, CancellationToken cancellationToken = default)
         {
