@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace TasqR
 {
@@ -32,18 +30,7 @@ namespace TasqR
 
         public virtual void Initialize(TProcess tasq) { }
 
-        public virtual void Run(TProcess process)
-        {
-            Task.Run(async () =>
-            {
-                await RunAsync(process);
-            }).GetAwaiter().GetResult();
-        }
-
-        public virtual Task RunAsync(TProcess process, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Run(TProcess process);
     }
 
     public abstract class TasqHandler<TProcess, TResponse> : ITasqHandler<TProcess, TResponse>
@@ -88,18 +75,7 @@ namespace TasqR
 
         public virtual void BeforeRun(TProcess tasq) { }
 
-        public virtual TResponse Run(TKey key, TProcess process)
-        {
-            return Task.Run(async () =>
-            {
-                return await RunAsync(key, process);
-            }).GetAwaiter().GetResult();
-        }
-
-        public virtual Task<TResponse> RunAsync(TKey key, TProcess process, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract TResponse Run(TKey key, TProcess process);
 
 
         public virtual void AfterRun(TProcess tasq) { }

@@ -12,6 +12,7 @@ namespace TasqR.TestProject.Test4
     {
         private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
 
+
         public override bool Run(int key, CommandWithKeyAsync process)
         {
             if (p_Keys.Contains(key))

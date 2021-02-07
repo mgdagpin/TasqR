@@ -18,9 +18,14 @@ namespace TasqR.TestProject.Test3
         public Test3Model Model { get; }
     }
 
-    public class CommandWithAsyncWithoutReturnHandler : TasqHandler<CommandWithAsyncWithoutReturn>
+    public class CommandWithAsyncWithoutReturnHandler : TasqHandlerAsync<CommandWithAsyncWithoutReturn>
     {
-        public override async Task RunAsync(CommandWithAsyncWithoutReturn process, CancellationToken cancellationToken = default)
+        public async override Task InitializeAsync(CommandWithAsyncWithoutReturn tasq, CancellationToken cancellationToken = default)
+        {
+            await Task.Run(() => Thread.Sleep(2000));
+        }
+
+        public async override Task RunAsync(CommandWithAsyncWithoutReturn process, CancellationToken cancellationToken = default)
         {
             await Task.Run(() => Thread.Sleep(2000));
 
