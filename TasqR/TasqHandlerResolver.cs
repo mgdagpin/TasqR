@@ -7,11 +7,11 @@ namespace TasqR
 {
     public class TasqHandlerResolver : ITasqHandlerResolver
     {
-        private Dictionary<Type, Type> TasqHanders { get; } = new Dictionary<Type, Type>();
+        protected Dictionary<Type, TypeTasqReference> TasqHanders { get; } = new Dictionary<Type, TypeTasqReference>();
 
-        protected virtual object GetService(Type type)
+        protected virtual object GetService(TypeTasqReference typeTasqReference)
         {
-            return Activator.CreateInstance(type);
+            return Activator.CreateInstance(typeTasqReference.HandlerImplementation);
         }
 
         public virtual IJobTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
@@ -32,7 +32,7 @@ namespace TasqR
 
             if (tasqHandlerInstance == null)
             {
-                throw new TasqException($"Type {GetFullName(tasqHandlerType)} not registered");
+                throw new TasqException($"Type {GetFullName(tasqHandlerType.HandlerImplementation)} not registered");
             }
 
             return tasqHandlerInstance;
@@ -62,9 +62,14 @@ namespace TasqR
             return sb.ToString();
         }
 
-        public void Register(Type tasq, Type handler)
+        public virtual void Register(TypeTasqReference handler)
         {
-            TasqHanders[tasq] = handler;
+            TasqHanders[handler.TasqProcess] = handler;
+        }
+
+        public virtual void Register<THandler>() where THandler : IJobTasqHandler
+        {
+            Register(TypeTasqReference.Resolve<THandler>());
         }
     }
 }

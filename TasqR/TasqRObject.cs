@@ -46,41 +46,18 @@ namespace TasqR
 
         public TResponse Run<TResponse>(ITasq<TResponse> tasq)
         {
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasq.GetType());
-
-            var initializeProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-            OnInitializeExecuting?.Invoke(tasq, initializeProcessEventArgs);
-            tasqHandlerInstance.Initialize(tasq);
-            initializeProcessEventArgs.StopStopwatch();
-            OnInitializeExecuted?.Invoke(tasq, initializeProcessEventArgs);
-
-            var onBeforeRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-            OnBeforeRunExecuting?.Invoke(tasq, onBeforeRunProcessEventArgs);
-            tasqHandlerInstance.BeforeRun(tasq);
-            onBeforeRunProcessEventArgs.StopStopwatch();
-            OnBeforeRunExecuted?.Invoke(tasq, onBeforeRunProcessEventArgs);
-
-            var onRunProcessEventArgs = new ProcessEventArgs<TResponse>(this).StartStopwatch();
-            OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
-            var retVal = (TResponse)tasqHandlerInstance.Run(null, tasq);
-            onRunProcessEventArgs.SetReturnedValue(retVal);
-            onRunProcessEventArgs.StopStopwatch();
-            OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
-
-            var onAfterRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-            OnAfterRunExecuting?.Invoke(tasq, onAfterRunProcessEventArgs);
-            tasqHandlerInstance.AfterRun(tasq);
-            onAfterRunProcessEventArgs.StopStopwatch();
-            OnAfterRunExecuted?.Invoke(tasq, onAfterRunProcessEventArgs);
-
-            tasqHandlerInstance.Dispose();
-
-            return retVal;
+            return Task.Run(async () =>
+            {
+                return await RunAsync(tasq);
+            }).GetAwaiter().GetResult();
         }
 
         public TResponse Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
         {
-            throw new NotImplementedException();
+            return Task.Run(async () =>
+            {
+                return await RunAsync(tasq);
+            }).GetAwaiter().GetResult();
         }
 
         /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
@@ -108,75 +85,113 @@ namespace TasqR
             return sb.ToString();
         }
 
-        public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
+
+
+
+        private async Task<object> RunAsyncImplementation(ITasq tasq, CancellationToken cancellationToken = default)
         {
-            await Task.Run(() =>
+            return await Task.Run(() =>
             {
+                object retVal = null;
+
                 var tasqType = tasq.GetType();
 
                 var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
 
+                TasqProcessEventHandler.Invoke
+                (
+                    startEvent: OnInitializeExecuting,
+                    method: () => tasqHandlerInstance.Initialize(tasq),
+                    tasq: tasq,
+                    endEvent: OnInitializeExecuted
+                );
 
+                TasqProcessEventHandler.Invoke
+                (
+                    startEvent: OnBeforeRunExecuting,
+                    method: () => tasqHandlerInstance.BeforeRun(tasq),
+                    tasq: tasq,
+                    endEvent: OnAfterRunExecuting
+                );
 
-                var initializeProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                OnInitializeExecuting?.Invoke(tasq, initializeProcessEventArgs);
-                tasqHandlerInstance.Initialize(tasq);
-                initializeProcessEventArgs.StopStopwatch();
-                OnInitializeExecuted?.Invoke(tasq, initializeProcessEventArgs);
-
-                var onBeforeRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                OnBeforeRunExecuting?.Invoke(tasq, onBeforeRunProcessEventArgs);
-                tasqHandlerInstance.BeforeRun(tasq);
-                onBeforeRunProcessEventArgs.StopStopwatch();
-                OnBeforeRunExecuted?.Invoke(tasq, onBeforeRunProcessEventArgs);
-
-                if (tasqHandlerInstance.GetType().GetGenericArguments().Length == 3)
+                if (tasqHandlerInstance.GetType().HasBaseType(typeof(JobProcessHandler<,,>)))
                 {
-                    var onSelectionCriteriaProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                    OnSelectionCriteriaExecuting?.Invoke(tasq, onSelectionCriteriaProcessEventArgs);
-                    var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
-                    onSelectionCriteriaProcessEventArgs.StopStopwatch();
-                    OnSelectionCriteriaExecuted?.Invoke(tasq, onSelectionCriteriaProcessEventArgs);
+                    var selectionCriteria = TasqProcessEventHandler.Invoke
+                    (
+                        startEvent: OnAfterRunExecuting,
+                        method: () => tasqHandlerInstance.SelectionCriteria(tasq),
+                        tasq: tasq,
+                        endEvent: OnAfterRunExecuted
+                    );
 
                     if (selectionCriteria != null)
                     {
                         foreach (var eachSelection in selectionCriteria)
                         {
-                            var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                            OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
-                            tasqHandlerInstance.Run(eachSelection, tasq);
-                            onRunProcessEventArgs.StopStopwatch();
-                            OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
+                            retVal = TasqProcessEventHandler.Invoke
+                            (
+                                startEvent: OnRunExecuting,
+                                method: () => tasqHandlerInstance.Run(eachSelection, tasq),
+                                tasq: tasq,
+                                endEvent: OnRunExecuted
+                            );
                         }
                     }
                 }
                 else
                 {
-                    var onRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                    OnRunExecuting?.Invoke(tasq, onRunProcessEventArgs);
-                    tasqHandlerInstance.Run(null, tasq);
-                    onRunProcessEventArgs.StopStopwatch();
-                    OnRunExecuted?.Invoke(tasq, onRunProcessEventArgs);
+                    retVal = TasqProcessEventHandler.Invoke
+                    (
+                        startEvent: OnRunExecuting,
+                        method: () => tasqHandlerInstance.Run(null, tasq),
+                        tasq: tasq,
+                        endEvent: OnRunExecuted
+                    );
                 }
 
-                var onAfterRunProcessEventArgs = new ProcessEventArgs(this).StartStopwatch();
-                OnAfterRunExecuting?.Invoke(tasq, onAfterRunProcessEventArgs);
-                tasqHandlerInstance.AfterRun(tasq);
-                onAfterRunProcessEventArgs.StopStopwatch();
-                OnAfterRunExecuted?.Invoke(tasq, onAfterRunProcessEventArgs);
+                TasqProcessEventHandler.Invoke
+                (
+                    startEvent: OnAfterRunExecuting,
+                    method: () => tasqHandlerInstance.AfterRun(tasq),
+                    tasq: tasq,
+                    endEvent: OnAfterRunExecuted
+                );
 
                 tasqHandlerInstance.Dispose();
+
+                return retVal;
             });
         }
 
-        public Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+
+
+
+        public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await Task.Run(async () =>
+            {
+                await RunAsyncImplementation(tasq, cancellationToken);
+            });
         }
 
-        public Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+        public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return await Task.Run(async () =>
+            {
+                var result = await RunAsyncImplementation((ITasq)tasq, cancellationToken);
+
+                return (TResponse)result;
+            });
+        }
+
+        public async Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+        {
+            return await Task.Run(async () =>
+            {
+                await RunAsyncImplementation((ITasq)tasq, cancellationToken);
+
+                return (TResponse)default;
+            });
         }
     }
 }

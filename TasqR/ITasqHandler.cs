@@ -84,7 +84,7 @@ namespace TasqR
                 .Select(a => (object)a);
         }
 
-        object IJobTasqHandler.Run(object key, object tasq) => Run((TKey)key, (TTasq)tasq);
+        object IJobTasqHandler.Run(object key, object tasq) => Run(key == null ? default : (TKey)key, (TTasq)tasq);
 
         void IJobTasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
         void IJobTasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);

@@ -4,7 +4,8 @@ namespace TasqR
 {
     public interface ITasqHandlerResolver
     {
-        void Register(Type tasq, Type handler);
+        void Register(TypeTasqReference handler);
+        void Register<THandler>() where THandler : IJobTasqHandler;
 
         IJobTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq;
         IJobTasqHandler ResolveHandler(Type type);

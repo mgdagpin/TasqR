@@ -56,5 +56,20 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
                 Assert.AreEqual(2, finalNumber);
             }
         }
+
+        [TestMethod]
+        public void CanExecuteNestedProcessWithReturn()
+        {
+            using (var svc = new TestServiceCollection())
+            {
+                svc.Register();
+
+                var tasqr = svc.GetService<ITasqR>();
+
+                int finalNumber = tasqr.Run(new NestedCommandWithReturn(1));
+
+                Assert.AreEqual(3, finalNumber);
+            }
+        }
     }
 }

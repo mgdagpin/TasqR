@@ -20,43 +20,27 @@ namespace TasqR
             });
 
             var assembliesToScan = assemblies.Distinct().ToArray();
-            var excludedInterfaces = new[]
-            {
-                typeof(IDisposable),
-                typeof(IBaseTasqHandler),
-                typeof(IJobTasqHandler)
-            };
 
             foreach (var assembly in assembliesToScan)
             {
-                assembly.DefinedTypes
-                .Where(t => t.IsAssignableTo(typeof(IJobTasqHandler)) && t.IsConcrete())
-                .Select(a => new TypeTasqReference
-                {
-                    Type = a,
-                    Interface = a.GetInterfaces()
-                        .FirstOrDefault(a => !excludedInterfaces.Any(b => b == a))
-                })
-                .ToList()
-                .ForEach(a =>
-                {
-                    if (a.Interface != null)
-                    {
-                        var _cmd = a.Interface.GenericTypeArguments
-                            .Single(a => a.IsAssignableTo(typeof(ITasq)));
+                var ttHandlers = TypeTasqReference.GetAllTypeTasqReference(assembly);
 
-                        services.AddTransient(a.Interface, a.Type);
+                foreach (var ttHandler in ttHandlers)
+                {
+                    s_TasqHandlerResolver.Register(ttHandler);
 
-                        s_TasqHandlerResolver.Register(_cmd, a.Interface);
-                    }
-                });
+                    services.AddTransient(ttHandler.HandlerImplementation);
+
+                    //services.AddTransient
+                    //   (
+                    //       ttHandler.HandlerInterface,
+                    //       ttHandler.HandlerImplementation
+                    //   );
+                }
             }
         }
 
-        private static bool IsConcrete(this Type type)
-        {
-            return !type.GetTypeInfo().IsAbstract && !type.GetTypeInfo().IsInterface;
-        }
+
     }
 
     public class MicrosoftDependencyTasqHandlerResolver : TasqHandlerResolver
@@ -68,9 +52,21 @@ namespace TasqR
             p_ServiceProvider = serviceProvider;
         }
 
-        protected override object GetService(Type type)
+        public override void Register(TypeTasqReference handler)
         {
-            return p_ServiceProvider.GetService(type);
+            if (TasqHanders.ContainsKey(handler.TasqProcess))
+            {
+
+            }
+
+            TasqHanders[handler.TasqProcess] = handler;
+        }
+
+        protected override object GetService(TypeTasqReference typeTasqReference)
+        {
+            var svc = p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
+
+            return svc;
         }
     }
 }
