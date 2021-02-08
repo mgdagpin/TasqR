@@ -32,7 +32,7 @@ namespace TasqR
 
         public TasqRObject(ITasqHandlerResolver tasqHandlerResolver)
         {
-            p_HandlerCollection = handlerCollection;
+            p_TasqHandlerResolver = tasqHandlerResolver;
             ID = Guid.NewGuid();
         }
 
