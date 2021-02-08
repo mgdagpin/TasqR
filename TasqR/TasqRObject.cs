@@ -41,24 +41,58 @@ namespace TasqR
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            Task.Run(async () =>
-            {
-                await RunAsyncImplementation(tasqHandlerInstance, tasq);
-            }).GetAwaiter().GetResult();
+            RunImpl(tasqHandlerInstance, tasq);
         }
 
         public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
-                await RunAsyncImplementation(tasqHandlerInstance, tasq, cancellationToken);
+                RunImpl(tasqHandlerInstance, tasq);
             });
+        }
+
+        private void RunImpl(TasqHandler tasqHandlerInstance, ITasq tasq)
+        {
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnInitializeExecuting,
+                method: () => tasqHandlerInstance.Initialize(tasq),
+                tasq: tasq,
+                endEvent: OnInitializeExecuted
+            );
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnBeforeRunExecuting,
+                method: () => tasqHandlerInstance.BeforeRun(tasq),
+                tasq: tasq,
+                endEvent: OnBeforeRunExecuted
+            );
+
+            TasqProcessEventHandler.Invoke
+                (
+                    startEvent: OnRunExecuting,
+                    method: () => tasqHandlerInstance.Run(null, tasq),
+                    tasq: tasq,
+                    endEvent: OnRunExecuted
+                );
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnAfterRunExecuting,
+                method: () => tasqHandlerInstance.AfterRun(tasq),
+                tasq: tasq,
+                endEvent: OnAfterRunExecuted
+            );
         }
         #endregion
 
@@ -67,28 +101,62 @@ namespace TasqR
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            return Task.Run(async () =>
-            {
-                var ret = await RunAsyncImplementation(tasqHandlerInstance, tasq);
-
-                return (TResponse)ret;
-            }).GetAwaiter().GetResult();
+            return RunImpl<TResponse>(tasqHandlerInstance, tasq);
         }
 
         public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
-                var result = await RunAsyncImplementation(tasqHandlerInstance, tasq, cancellationToken);
-
-                return (TResponse)result;
+                return RunImpl<TResponse>(tasqHandlerInstance, tasq);
             });
+        }
+
+        private TResponse RunImpl<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        {
+            TResponse retVal;
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnInitializeExecuting,
+                method: () => tasqHandlerInstance.Initialize(tasq),
+                tasq: tasq,
+                endEvent: OnInitializeExecuted
+            );
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnBeforeRunExecuting,
+                method: () => tasqHandlerInstance.BeforeRun(tasq),
+                tasq: tasq,
+                endEvent: OnBeforeRunExecuted
+            );
+
+            retVal = TasqProcessEventHandler.Invoke
+                (
+                    startEvent: OnRunExecuting,
+                    method: () => (TResponse)tasqHandlerInstance.Run(null, tasq),
+                    tasq: tasq,
+                    endEvent: OnRunExecuted
+                );
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnAfterRunExecuting,
+                method: () => tasqHandlerInstance.AfterRun(tasq),
+                tasq: tasq,
+                endEvent: OnAfterRunExecuted
+            );
+
+            return retVal;
         }
         #endregion
 
@@ -97,101 +165,82 @@ namespace TasqR
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            return Task.Run(async () =>
-            {
-                var ret = await RunAsyncImplementation(tasqHandlerInstance, tasq);
-
-                return (TResponse)ret;
-            }).GetAwaiter().GetResult();
+            return RunImpl<TKey, TResponse>(tasqHandlerInstance, tasq);
         }
 
-        public async Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+        public async Task<TResponse> RunAsync<TKey, TResponse>
+            (
+                ITasq<TKey, TResponse> tasq,
+                CancellationToken cancellationToken = default
+            )
         {
             var tasqType = tasq.GetType();
 
-            var tasqHandlerInstance = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
 
-            return await Task.Run(async () =>
-            {
-                var ret = await RunAsyncImplementation(tasqHandlerInstance, tasq, cancellationToken);
-
-                return (TResponse)ret;
-            });
-        }
-        #endregion
-
-
-        private async Task<object> RunAsyncImplementation(ITasqHandler tasqHandlerInstance, ITasq tasq, CancellationToken cancellationToken = default)
-        {
             return await Task.Run(() =>
             {
-                object retVal = null;
+                return RunImpl<TKey, TResponse>(tasqHandlerInstance, tasq);
+            });
+        }
 
-                TasqProcessEventHandler.Invoke
+        private TResponse RunImpl<TKey, TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        {
+            TResponse retVal = default;
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnInitializeExecuting,
+                method: () => tasqHandlerInstance.Initialize(tasq),
+                tasq: tasq,
+                endEvent: OnInitializeExecuted
+            );
+
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnBeforeRunExecuting,
+                method: () => tasqHandlerInstance.BeforeRun(tasq),
+                tasq: tasq,
+                endEvent: OnBeforeRunExecuted
+            );
+
+            var selectionCriteria = TasqProcessEventHandler.Invoke
                 (
-                    startEvent: OnInitializeExecuting,
-                    method: () => tasqHandlerInstance.Initialize(tasq),
+                    startEvent: OnSelectionCriteriaExecuting,
+                    method: () => tasqHandlerInstance.SelectionCriteria(tasq),
                     tasq: tasq,
-                    endEvent: OnInitializeExecuted
+                    endEvent: OnSelectionCriteriaExecuted
                 );
 
-                TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnBeforeRunExecuting,
-                    method: () => tasqHandlerInstance.BeforeRun(tasq),
-                    tasq: tasq,
-                    endEvent: OnBeforeRunExecuted
-                );
-
-                if (tasqHandlerInstance.GetType().HasBaseType(typeof(TasqHandler<,,>)))
-                {
-                    var selectionCriteria = TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnSelectionCriteriaExecuting,
-                        method: () => tasqHandlerInstance.SelectionCriteria(tasq),
-                        tasq: tasq,
-                        endEvent: OnSelectionCriteriaExecuted
-                    );
-
-                    if (selectionCriteria != null)
-                    {
-                        foreach (var eachSelection in selectionCriteria)
-                        {
-                            retVal = TasqProcessEventHandler.Invoke
-                            (
-                                startEvent: OnRunExecuting,
-                                method: () => tasqHandlerInstance.Run(eachSelection, tasq),
-                                tasq: tasq,
-                                endEvent: OnRunExecuted
-                            );
-                        }
-                    }
-                }
-                else
+            if (selectionCriteria != null)
+            {
+                foreach (var eachSelection in selectionCriteria)
                 {
                     retVal = TasqProcessEventHandler.Invoke
                     (
                         startEvent: OnRunExecuting,
-                        method: () => tasqHandlerInstance.Run(null, tasq),
+                        method: () => (TResponse)tasqHandlerInstance.Run(eachSelection, tasq),
                         tasq: tasq,
                         endEvent: OnRunExecuted
                     );
                 }
+            }
 
-                TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnAfterRunExecuting,
-                    method: () => tasqHandlerInstance.AfterRun(tasq),
-                    tasq: tasq,
-                    endEvent: OnAfterRunExecuted
-                );
+            TasqProcessEventHandler.Invoke
+            (
+                startEvent: OnAfterRunExecuting,
+                method: () => tasqHandlerInstance.AfterRun(tasq),
+                tasq: tasq,
+                endEvent: OnAfterRunExecuted
+            );
 
-                tasqHandlerInstance.Dispose();
 
-                return retVal;
-            });
+            return retVal;
         }
+        #endregion
     }
 }

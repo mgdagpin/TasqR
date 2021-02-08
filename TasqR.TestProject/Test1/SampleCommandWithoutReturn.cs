@@ -9,4 +9,13 @@
 
         public TestModel TestModel { get; }
     }
+
+    public class SampleCommandWithoutReturnHandler : TasqHandler<SampleCommandWithoutReturn>
+    {
+
+        public override void Run(SampleCommandWithoutReturn process)
+        {
+            process.TestModel.SampleNumber++;
+        }
+    }
 }

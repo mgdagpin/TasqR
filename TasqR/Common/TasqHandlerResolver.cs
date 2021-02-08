@@ -15,12 +15,12 @@ namespace TasqR
             return Activator.CreateInstance(typeTasqReference.HandlerImplementation);
         }
 
-        public virtual ITasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
+        public virtual IBaseTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
         {
             return ResolveHandler(typeof(TTasq));
         }
 
-        public virtual ITasqHandler ResolveHandler(Type type)
+        public virtual IBaseTasqHandler ResolveHandler(Type type)
         {
             if (!TasqHanders.ContainsKey(type))
             {
@@ -29,7 +29,7 @@ namespace TasqR
 
             var tasqHandlerType = TasqHanders[type];
 
-            var tasqHandlerInstance = (ITasqHandler)GetService(tasqHandlerType);
+            var tasqHandlerInstance = (IBaseTasqHandler)GetService(tasqHandlerType);
 
             if (tasqHandlerInstance == null)
             {
@@ -68,7 +68,7 @@ namespace TasqR
             TasqHanders[handler.TasqProcess] = handler;
         }
 
-        public virtual void Register<THandler>() where THandler : ITasqHandler
+        public virtual void Register<THandler>() where THandler : IBaseTasqHandler
         {
             Register(TypeTasqReference.Resolve<THandler>());
         }

@@ -17,8 +17,9 @@ namespace TasqR.TestProject
             handlerResolver.Register<CommandWithAsyncWithoutReturnHandler>();
 
             var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new CommandWithAsyncWithoutReturn(testModel);
 
-            await tasqR.RunAsync(new CommandWithAsyncWithoutReturn(testModel));
+            await tasqR.RunAsync(cmd);
 
             Assert.AreEqual(11, testModel.StartNumber);
         }

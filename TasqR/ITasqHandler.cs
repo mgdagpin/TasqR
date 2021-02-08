@@ -1,96 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TasqR
 {
     public interface IBaseTasqHandler { }
-    public interface ITasqHandler : IBaseTasqHandler, IDisposable
+    public interface ITasqHandler : IBaseTasqHandler
     {
-        void Initialize(object tasq);
-
-        IEnumerable<object> SelectionCriteria(object tasq);
+        //void Initialize(object tasq);
 
 
-        void BeforeRun(object tasq);
-        object Run(object key, object tasq);
-        void AfterRun(object tasq);
+        //void BeforeRun(object tasq);
+        //void Run(object tasq);
+        //void AfterRun(object tasq);
     }
-    public interface ITasqHandler<TTasq> : ITasqHandler
+    public interface ITasqHandler<in TTasq> : ITasqHandler
         where TTasq : ITasq
     {
-        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
-        {
-            return null;
-        }
-
-        object ITasqHandler.Run(object key, object tasq)
-        {
-            Run((TTasq)tasq);
-
-            return null;
-        }
-
-        void ITasqHandler.Initialize(object tasq)
-        {
-            Initialize((TTasq)tasq);
-        }
-
-        void ITasqHandler.BeforeRun(object tasq)
-        {
-            BeforeRun((TTasq)tasq);
-        }
-
-        void ITasqHandler.AfterRun(object tasq)
-        {
-            AfterRun((TTasq)tasq);
-        }
-
         void Initialize(TTasq tasq);
         void BeforeRun(TTasq tasq);
         void Run(TTasq tasq);
         void AfterRun(TTasq tasq);
     }
-    public interface ITasqHandler<TTasq, TResponse> : ITasqHandler
+
+    public interface ITasqHandlerAsync<in TTasq> : ITasqHandler
+    {
+        Task InitializeAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task BeforeRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task RunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task AfterRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+    }
+
+    public interface ITasqHandler<TTasq, out TResponse> : ITasqHandler
         where TTasq : ITasq<TResponse>
     {
-        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
-        {
-            return null;
-        }
-
-        void ITasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
-        void ITasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
-        object ITasqHandler.Run(object key, object tasq) => Run((TTasq)tasq);
-
-        void ITasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
-
         void Initialize(TTasq tasq);
         void BeforeRun(TTasq tasq);
         TResponse Run(TTasq tasq);
         void AfterRun(TTasq tasq);
     }
-    public interface ITasqHandler<TTasq, TKey, TResponse> : ITasqHandler
+
+    public interface ITasqHandler<in TTasq, TKey, TResponse> : ITasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
-        IEnumerable<object> ITasqHandler.SelectionCriteria(object tasq)
-        {
-            return SelectionCriteria((TTasq)tasq)
-                .Select(a => (object)a);
-        }
-
-        object ITasqHandler.Run(object key, object tasq) => Run(key == null ? default : (TKey)key, (TTasq)tasq);
-
-        void ITasqHandler.Initialize(object tasq) => Initialize((TTasq)tasq);
-        void ITasqHandler.BeforeRun(object tasq) => BeforeRun((TTasq)tasq);
-        void ITasqHandler.AfterRun(object tasq) => AfterRun((TTasq)tasq);
-
         IEnumerable<TKey> SelectionCriteria(TTasq tasq);
-
         void Initialize(TTasq tasq);
         void BeforeRun(TTasq tasq);
-
-        TResponse Run(TKey key, TTasq tasq);
+        TResponse Run(TKey key, TTasq tasqt);
         void AfterRun(TTasq tasq);
+    }
+
+    public interface ITasqHandlerAsync<in TTasq, TKey, TResponse> : ITasqHandler
+        where TTasq : ITasq<TKey, TResponse>
+    {
+        Task<IEnumerable<TKey>> SelectionCriteriaAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task InitializeAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task BeforeRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task<TResponse> RunAsync(TKey key, TTasq tasq, CancellationToken cancellationToken = default);
+        Task AfterRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
     }
 }

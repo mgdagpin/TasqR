@@ -17,8 +17,9 @@ namespace TasqR.TestProject
             handlerResolver.Register<SampleCommandWithoutReturnHandler>();
 
             var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new SampleCommandWithoutReturn(testModel);
 
-            tasqR.Run(new SampleCommandWithoutReturn(testModel));
+            tasqR.Run(cmd);
 
             Assert.AreEqual(11, testModel.SampleNumber);
         }
@@ -32,8 +33,9 @@ namespace TasqR.TestProject
             handlerResolver.Register<SampleCommandWithReturnHandler>();
 
             var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new SampleCommandWithReturn(startNumber);
 
-            int finalNumber = tasqR.Run(new SampleCommandWithReturn(startNumber));
+            int finalNumber = tasqR.Run(cmd);
 
             Assert.AreEqual(9, finalNumber);
         }
@@ -63,5 +65,45 @@ namespace TasqR.TestProject
             Assert.AreEqual(typeof(SampleCommandWithoutReturnHandler), typeTaskRef.HandlerImplementation);
             Assert.AreEqual(typeof(ITasqHandler<SampleCommandWithoutReturn>), typeTaskRef.HandlerInterface);
         }
+
+        //[TestMethod]
+        //public void MyTestMethod()
+        //{
+        //    ICage<Dog> a = new CageOfDog();
+
+        //    INiceCage<IAnimal> b = (RedCage<Dog>)a;
+        //}
+
+
+        //public interface IAnimal
+        //{
+        //}
+
+        //public class Dog : IAnimal
+        //{
+        //}
+
+        //public class Cat : IAnimal
+        //{
+        //}
+
+        //public interface ICage<in TAnimal> where TAnimal : IAnimal
+        //{
+
+        //}
+
+        //public interface INiceCage<in TAnimal> : ICage<TAnimal> where TAnimal : IAnimal
+        //{
+
+        //}
+
+        //public class RedCage<TAnimal> : ICage<TAnimal> where TAnimal : IAnimal
+        //{
+
+        //}
+
+        //public class CageOfDog : RedCage<Dog>
+        //{
+        //}
     }
 }
