@@ -1,23 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace TasqR
 {
-
-
     public static class TasqRRegister
     {
-        static Dictionary<Type, Type> s_TypeReferenceDictionary = new Dictionary<Type, Type>();
-        static List<TypeTasqReference> s_AllTypeReferences = new List<TypeTasqReference>();
+        static ITasqHandlerResolver s_TasqHandlerResolver = new MicrosoftDependencyTasqHandlerResolver();
 
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
             services.AddScoped<ITasqR>(p =>
             {
                 ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver).SetServiceProvider(p);
+
+                return new TasqRObject(s_TasqHandlerResolver);
+            });
 
             var assembliesToScan = assemblies.Distinct().ToArray();
 
@@ -37,23 +36,13 @@ namespace TasqR
 
     }
 
-    public class TasqHandlerCollection : ITasqHandlerCollection
+    public class MicrosoftDependencyTasqHandlerResolver : TasqHandlerResolver
     {
-        private readonly IServiceProvider p_SeviceProvider;
+        private IServiceProvider p_ServiceProvider;
 
-        public Dictionary<Type, Type> TasqHanders { get; private set; }
-        public IEnumerable<TypeTasqReference> TypeReferences { get; private set; }
-
-        public TasqHandlerCollection
-            (
-                Dictionary<Type, Type> typeReferenceDictionary,
-                IEnumerable<TypeTasqReference> allTypeReferences,
-                IServiceProvider seviceProvider
-            )
+        public void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            TasqHanders = typeReferenceDictionary;
-            p_SeviceProvider = seviceProvider;
-            TypeReferences = allTypeReferences;
+            p_ServiceProvider = serviceProvider;
         }
 
         protected override object GetService(TypeTasqReference typeTasqReference)
