@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TasqR.Common;
 using TasqR.TestProject.Test4;
 
 namespace TasqR.TestProject
@@ -28,5 +29,5 @@ namespace TasqR.TestProject
                 throw;
             }
         }
-   }
+    }
 }

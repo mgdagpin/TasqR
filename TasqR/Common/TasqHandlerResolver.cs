@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TasqR
+namespace TasqR.Common
 {
     public class TasqHandlerResolver : ITasqHandlerResolver
     {
@@ -15,12 +15,12 @@ namespace TasqR
             return Activator.CreateInstance(typeTasqReference.HandlerImplementation);
         }
 
-        public virtual IBaseTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq
+        public virtual TasqHandlerDetail ResolveHandler<TTasq>() where TTasq : ITasq
         {
             return ResolveHandler(typeof(TTasq));
         }
 
-        public virtual IBaseTasqHandler ResolveHandler(Type type)
+        public virtual TasqHandlerDetail ResolveHandler(Type type)
         {
             if (!TasqHanders.ContainsKey(type))
             {
@@ -36,7 +36,11 @@ namespace TasqR
                 throw new TasqException($"Type {GetFullName(tasqHandlerType.HandlerImplementation)} not registered");
             }
 
-            return tasqHandlerInstance;
+            return new TasqHandlerDetail
+            {
+                Handler = tasqHandlerInstance,
+                Reference = tasqHandlerType
+            };
         }
 
         private string GetFullName(Type t)

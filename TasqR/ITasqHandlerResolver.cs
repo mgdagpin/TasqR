@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TasqR.Common;
 
 namespace TasqR
 {
@@ -10,7 +11,7 @@ namespace TasqR
         void Register(TypeTasqReference handler);
         void Register<THandler>() where THandler : IBaseTasqHandler;
 
-        IBaseTasqHandler ResolveHandler<TTasq>() where TTasq : ITasq;
-        IBaseTasqHandler ResolveHandler(Type type);
+        TasqHandlerDetail ResolveHandler<TTasq>() where TTasq : ITasq;
+        TasqHandlerDetail ResolveHandler(Type type);
     }
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace TasqR
+namespace TasqR.Common
 {
     internal static class TypeExtensions
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TasqR.Common;
 
 namespace TasqR
 {
@@ -42,9 +43,22 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            RunImpl(tasqHandlerInstance, tasq);
+            if (resolvedHandler.Reference.HandlerInterface.IsGenericType
+                && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
+            {
+                RunImplWithKey<object>(tasqHandlerInstance, tasq);
+            }
+            else if (resolvedHandler.Reference.HandlerInterface.IsGenericType
+                && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 2)
+            {
+                RunImplWithReturn<object>(tasqHandlerInstance, tasq);
+            }
+            else
+            {
+                RunImpl(tasqHandlerInstance, tasq);
+            }
         }
 
         public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
@@ -52,11 +66,29 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
             await Task.Run(() =>
             {
-                RunImpl(tasqHandlerInstance, tasq);
+                if (resolvedHandler.Reference.HandlerInterface.IsGenericType
+                && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
+                {
+                    var arg1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
+                    var arg2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
+
+                    throw new TasqException($"Cast your Tasq with {nameof(ITasq)}<{arg1.Name},{arg2.Name}>");
+                }
+                else if (resolvedHandler.Reference.HandlerInterface.IsGenericType
+                    && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 2)
+                {
+                    var arg1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
+
+                    throw new TasqException($"Cast your Tasq with {nameof(ITasq)}<{arg1.Name}>");
+                }
+                else
+                {
+                    RunImpl(tasqHandlerInstance, tasq);
+                }
             });
         }
 
@@ -102,9 +134,9 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return RunImpl<TResponse>(tasqHandlerInstance, tasq);
+            return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq);
         }
 
         public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
@@ -112,15 +144,15 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
             return await Task.Run(() =>
             {
-                return RunImpl<TResponse>(tasqHandlerInstance, tasq);
+                return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq);
             });
         }
 
-        private TResponse RunImpl<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        private TResponse RunImplWithReturn<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
         {
             TResponse retVal;
 
@@ -166,9 +198,9 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return RunImpl<TKey, TResponse>(tasqHandlerInstance, tasq);
+            return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq);
         }
 
         public async Task<TResponse> RunAsync<TKey, TResponse>
@@ -180,15 +212,15 @@ namespace TasqR
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler;
+            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
             return await Task.Run(() =>
             {
-                return RunImpl<TKey, TResponse>(tasqHandlerInstance, tasq);
+                return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq);
             });
         }
 
-        private TResponse RunImpl<TKey, TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        private TResponse RunImplWithKey<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
         {
             TResponse retVal = default;
 

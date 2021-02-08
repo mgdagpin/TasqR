@@ -1,4 +1,6 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TasqR.Common;
 using TasqR.TestProject.Test1;
 using TasqR.TestProject.Test2;
 using TasqR.TestProject.Test4;
@@ -9,7 +11,7 @@ namespace TasqR.TestProject
     public class TasqRTesting
     {
         [TestMethod]
-        public void CanRunCommandWithoutReturn()
+        public void CanRunWithoutReturn()
         {
             var testModel = new TestModel { SampleNumber = 10 };
             var handlerResolver = new TasqHandlerResolver();
@@ -25,7 +27,7 @@ namespace TasqR.TestProject
         }
 
         [TestMethod]
-        public void CanRunCommandWithReturn()
+        public void CanRunWithReturn()
         {
             int startNumber = 8;
             var handlerResolver = new TasqHandlerResolver();
@@ -42,7 +44,7 @@ namespace TasqR.TestProject
 
 
         [TestMethod]
-        public void CanRunCommandWithKeys()
+        public void CanRunWithKey()
         {
             var handlerResolver = new TasqHandlerResolver();
 
@@ -57,6 +59,21 @@ namespace TasqR.TestProject
         }
 
         [TestMethod]
+        public void CanRunWithKeyBaseType()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithKeyHandler>();
+
+            var tasqR = new TasqRObject(handlerResolver);
+            var instance = Activator.CreateInstance(typeof(CommandWithKey));
+
+            tasqR.Run((ITasq<int, bool>)instance);
+
+            Assert.IsTrue(((CommandWithKey)instance).AllAreCorrect);
+        }
+
+        [TestMethod]
         public void TasqReferenceObjectResolver()
         {
             var typeTaskRef = TypeTasqReference.Resolve<SampleCommandWithoutReturnHandler>();
@@ -65,45 +82,5 @@ namespace TasqR.TestProject
             Assert.AreEqual(typeof(SampleCommandWithoutReturnHandler), typeTaskRef.HandlerImplementation);
             Assert.AreEqual(typeof(ITasqHandler<SampleCommandWithoutReturn>), typeTaskRef.HandlerInterface);
         }
-
-        //[TestMethod]
-        //public void MyTestMethod()
-        //{
-        //    ICage<Dog> a = new CageOfDog();
-
-        //    INiceCage<IAnimal> b = (RedCage<Dog>)a;
-        //}
-
-
-        //public interface IAnimal
-        //{
-        //}
-
-        //public class Dog : IAnimal
-        //{
-        //}
-
-        //public class Cat : IAnimal
-        //{
-        //}
-
-        //public interface ICage<in TAnimal> where TAnimal : IAnimal
-        //{
-
-        //}
-
-        //public interface INiceCage<in TAnimal> : ICage<TAnimal> where TAnimal : IAnimal
-        //{
-
-        //}
-
-        //public class RedCage<TAnimal> : ICage<TAnimal> where TAnimal : IAnimal
-        //{
-
-        //}
-
-        //public class CageOfDog : RedCage<Dog>
-        //{
-        //}
     }
 }
