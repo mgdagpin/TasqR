@@ -9,7 +9,7 @@ namespace TasqR
         IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
         void Register(TypeTasqReference handler);
-        void Register<THandler>() where THandler : IBaseTasqHandler;
+        void Register<THandler>() where THandler : ITasqHandler;
 
         TasqHandlerDetail ResolveHandler<TTasq>() where TTasq : ITasq;
         TasqHandlerDetail ResolveHandler(Type type);

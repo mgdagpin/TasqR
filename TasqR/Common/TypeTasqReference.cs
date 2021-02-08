@@ -11,7 +11,7 @@ namespace TasqR.Common
         public Type HandlerImplementation { get; set; }
         public Type HandlerInterface { get; set; }
 
-        public static TypeTasqReference Resolve<TTaskHandler>() where TTaskHandler : IBaseTasqHandler
+        public static TypeTasqReference Resolve<TTaskHandler>() where TTaskHandler : ITasqHandler
         {
             return Resolve(typeof(TTaskHandler));
         }
@@ -23,7 +23,7 @@ namespace TasqR.Common
 
             if (handlerInterface == null)
             {
-                throw new TasqException($"{t.FullName} not inheritted from {nameof(IBaseTasqHandler)}");
+                throw new TasqException($"{t.FullName} not inheritted from {nameof(ITasqHandler)}");
             }
 
             return new TypeTasqReference

@@ -41,7 +41,7 @@ namespace TasqR.Common
 
         internal static bool IsAssignableToTasqHandler(this Type type)
         {
-            var toType = typeof(IBaseTasqHandler);
+            var toType = typeof(ITasqHandler);
 
             return type.IsAssignableTo2(toType);
         }

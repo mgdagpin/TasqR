@@ -61,14 +61,14 @@ namespace TasqR
             }
         }
 
-        public async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
+        public Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
         {
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
             var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
@@ -139,14 +139,14 @@ namespace TasqR
             return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq);
         }
 
-        public async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+        public Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
         {
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
             TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq);
             });
@@ -203,7 +203,7 @@ namespace TasqR
             return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq);
         }
 
-        public async Task<TResponse> RunAsync<TKey, TResponse>
+        public Task<TResponse> RunAsync<TKey, TResponse>
             (
                 ITasq<TKey, TResponse> tasq,
                 CancellationToken cancellationToken = default
@@ -214,7 +214,7 @@ namespace TasqR
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
             TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
                 return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq);
             });

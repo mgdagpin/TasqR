@@ -4,16 +4,7 @@ using System.Threading.Tasks;
 
 namespace TasqR
 {
-    public interface IBaseTasqHandler { }
-    public interface ITasqHandler : IBaseTasqHandler
-    {
-        //void Initialize(object tasq);
-
-
-        //void BeforeRun(object tasq);
-        //void Run(object tasq);
-        //void AfterRun(object tasq);
-    }
+    public interface ITasqHandler { }
     public interface ITasqHandler<in TTasq> : ITasqHandler
         where TTasq : ITasq
     {

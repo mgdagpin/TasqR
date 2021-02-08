@@ -29,7 +29,7 @@ namespace TasqR.Common
 
             var tasqHandlerType = TasqHanders[type];
 
-            var tasqHandlerInstance = (IBaseTasqHandler)GetService(tasqHandlerType);
+            var tasqHandlerInstance = (ITasqHandler)GetService(tasqHandlerType);
 
             if (tasqHandlerInstance == null)
             {
@@ -72,7 +72,7 @@ namespace TasqR.Common
             TasqHanders[handler.TasqProcess] = handler;
         }
 
-        public virtual void Register<THandler>() where THandler : IBaseTasqHandler
+        public virtual void Register<THandler>() where THandler : ITasqHandler
         {
             Register(TypeTasqReference.Resolve<THandler>());
         }
