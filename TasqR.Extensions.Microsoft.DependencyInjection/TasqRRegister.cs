@@ -15,50 +15,26 @@ namespace TasqR
 
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
-            services.AddScoped<ITasqR, TasqRObject>();
-            services.AddScoped<ITasqHandlerCollection>(p => new TasqHandlerCollection(s_TypeReferenceDictionary, s_AllTypeReferences, p));
+            services.AddScoped<ITasqR>(p =>
+            {
+                ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver).SetServiceProvider(p);
 
             var assembliesToScan = assemblies.Distinct().ToArray();
-            var excludedInterfaces = new[]
-            {
-                typeof(IDisposable),
-                typeof(IBaseTasqHandler),
-                typeof(IJobTasqHandler)
-            };
 
             foreach (var assembly in assembliesToScan)
             {
-                assembly.DefinedTypes
-                .Where(t => t.IsAssignableTo(typeof(IJobTasqHandler)) && t.IsConcrete())
-                .Select(a => new TypeTasqReference
+                var ttHandlers = TypeTasqReference.GetAllTypeTasqReference(assembly);
+
+                foreach (var ttHandler in ttHandlers)
                 {
-                    Type = a,
-                    Interface = a.GetInterfaces()
-                        .Where(a => !excludedInterfaces.Any(b => b == a))
-                        .FirstOrDefault()
-                })
-                .ToList()
-                .ForEach(a =>
-                {
-                    if (a.Interface != null)
-                    {
-                        var _cmd = a.Interface.GenericTypeArguments
-                            .Single(a => a.IsAssignableTo(typeof(ITasq)));
+                    s_TasqHandlerResolver.Register(ttHandler);
 
-                        services.AddTransient(a.Interface, a.Type);
-
-                        s_TypeReferenceDictionary[_cmd] = a.Interface;
-
-                        s_AllTypeReferences.Add(a);
-                    }
-                });
+                    services.AddTransient(ttHandler.HandlerImplementation);
+                }
             }
         }
 
-        private static bool IsConcrete(this Type type)
-        {
-            return !type.GetTypeInfo().IsAbstract && !type.GetTypeInfo().IsInterface;
-        }
+
     }
 
     public class TasqHandlerCollection : ITasqHandlerCollection
@@ -80,9 +56,9 @@ namespace TasqR
             TypeReferences = allTypeReferences;
         }
 
-        public object GetService(Type type)
+        protected override object GetService(TypeTasqReference typeTasqReference)
         {
-            return this.p_SeviceProvider.GetService(type);
+            return p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
         }
     }
 }

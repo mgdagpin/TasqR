@@ -1,4 +1,9 @@
-﻿namespace TasqR
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TasqR
 {
     public interface ITasqR
     {
@@ -16,6 +21,8 @@
 
         event ProcessEventHandler OnAfterRunExecuting;
         event ProcessEventHandler OnAfterRunExecuted;
+
+        IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
         void Run(ITasq tasq);
         TResponse Run<TResponse>(ITasq<TResponse> tasq);
