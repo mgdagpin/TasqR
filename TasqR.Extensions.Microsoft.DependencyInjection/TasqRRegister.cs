@@ -19,22 +19,13 @@ namespace TasqR
                 return new TasqRObject(s_TasqHandlerResolver);
             });
 
-            var assembliesToScan = assemblies.Distinct().ToArray();
+            s_TasqHandlerResolver.RegisterFromAssembly(assemblies);
 
-            foreach (var assembly in assembliesToScan)
+            foreach (var ttHandler in s_TasqHandlerResolver.RegisteredReferences)
             {
-                var ttHandlers = TypeTasqReference.GetAllTypeTasqReference(assembly);
-
-                foreach (var ttHandler in ttHandlers)
-                {
-                    s_TasqHandlerResolver.Register(ttHandler);
-
-                    services.AddTransient(ttHandler.HandlerImplementation);
-                }
+                services.AddTransient(ttHandler.HandlerImplementation);
             }
         }
-
-
     }
 
     public class MicrosoftDependencyTasqHandlerResolver : TasqHandlerResolver

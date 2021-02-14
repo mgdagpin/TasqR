@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace TasqR.Common
@@ -75,6 +76,26 @@ namespace TasqR.Common
         public virtual void Register<THandler>() where THandler : ITasqHandler
         {
             Register(TypeTasqReference.Resolve<THandler>());
+        }
+
+        public virtual void RegisterFromAssembly(params Assembly[] assemblies)
+        {
+            var assembliesToScan = assemblies.Distinct().ToList();
+
+            if (assembliesToScan.Count == 0)
+            {
+                assembliesToScan.Add(Assembly.GetExecutingAssembly());
+            }
+
+            foreach (var assembly in assembliesToScan)
+            {
+                var ttHandlers = TypeTasqReference.GetAllTypeTasqReference(assembly);
+
+                foreach (var ttHandler in ttHandlers)
+                {
+                    Register(ttHandler);
+                }
+            }
         }
     }
 }

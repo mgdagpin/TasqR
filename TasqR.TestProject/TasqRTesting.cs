@@ -4,6 +4,7 @@ using TasqR.Common;
 using TasqR.TestProject.Test1;
 using TasqR.TestProject.Test2;
 using TasqR.TestProject.Test4;
+using TasqR.TestProject.Test5;
 
 namespace TasqR.TestProject
 {
@@ -81,6 +82,28 @@ namespace TasqR.TestProject
             Assert.AreEqual(typeof(SampleCommandWithoutReturn), typeTaskRef.TasqProcess);
             Assert.AreEqual(typeof(SampleCommandWithoutReturnHandler), typeTaskRef.HandlerImplementation);
             Assert.AreEqual(typeof(ITasqHandler<SampleCommandWithoutReturn>), typeTaskRef.HandlerInterface);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(MissingMethodException))]
+        public void CannotRunDefaultCmdWithHandlerWithNoParamlessConstructor()
+        {
+            try
+            {
+                var handlerResolver = new TasqHandlerResolver();
+
+                handlerResolver.Register<CmdHandlerWithNoParamlessCtorHandler>();
+                var tasqR = new TasqRObject(handlerResolver);
+
+                var cmd = new CmdHandlerWithNoParamlessCtor();
+                tasqR.Run(cmd);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.StartsWith("No parameterless constructor defined for type"));
+
+                throw;
+            }
         }
     }
 }
