@@ -47,13 +47,13 @@ namespace TasqR
 
 
 
-        public virtual Task InitializeAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task InitializeAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
 
         public abstract Task RunAsync(TProcess process, CancellationToken cancellationToken = default);
 
-        public virtual Task BeforeRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task BeforeRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
 
-        public virtual Task AfterRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task AfterRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 
     public abstract class TasqHandlerAsync<TProcess, TResponse> : TasqHandler<TProcess, TResponse>
@@ -140,10 +140,10 @@ namespace TasqR
 
         public abstract Task<IEnumerable<TKey>> SelectionCriteriaAsync(TProcess tasq, CancellationToken cancellationToken = default);
 
-        public virtual Task BeforeRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task BeforeRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
 
-        public virtual Task AfterRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task AfterRunAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
 
-        public virtual Task InitializeAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual Task InitializeAsync(TProcess tasq, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 }
