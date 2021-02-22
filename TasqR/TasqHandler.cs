@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace TasqR
 {
     public abstract class TasqHandler : ITasqHandler
     {
+        internal CancellationToken p_CancellationToken { get; set; }
+
         internal virtual void AfterRun(object tasq) => throw new NotImplementedException();
         internal virtual void BeforeRun(object tasq) => throw new NotImplementedException();
         internal virtual void Initialize(object tasq) => throw new NotImplementedException();

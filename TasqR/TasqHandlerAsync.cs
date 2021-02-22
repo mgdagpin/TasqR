@@ -11,36 +11,24 @@ namespace TasqR
         #region TasqHandler Calls
         internal override void BeforeRun(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await BeforeRunAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            BeforeRunAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override void AfterRun(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await AfterRunAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            AfterRunAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override void Initialize(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await InitializeAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            InitializeAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override object Run(object key, object tasq)
         {
-            return Task.Run<object>(async () =>
-            {
-                await RunAsync((TProcess)tasq);
+            RunAsync((TProcess)tasq, p_CancellationToken).Wait();
 
-                return null;
-            }).GetAwaiter().GetResult();
+            return null;
         }
         #endregion
 
@@ -61,10 +49,7 @@ namespace TasqR
     {
         public override void Initialize(TProcess tasq)
         {
-            Task.Run(async () =>
-            {
-                await InitializeAsync(tasq);
-            }).GetAwaiter().GetResult();
+            InitializeAsync(tasq, p_CancellationToken).Wait();
         }
 
         public virtual Task InitializeAsync(TProcess tasq, CancellationToken cancellationToken = default)
@@ -74,10 +59,7 @@ namespace TasqR
 
         public override TResponse Run(TProcess process)
         {
-            return Task.Run(async () =>
-            {
-                return await RunAsync(process);
-            }).GetAwaiter().GetResult();
+            return RunAsync(process, p_CancellationToken).Result;
         }
 
         public abstract Task<TResponse> RunAsync(TProcess process, CancellationToken cancellationToken = default);
@@ -89,49 +71,34 @@ namespace TasqR
         #region TasqHandler Calls
         internal override void BeforeRun(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await BeforeRunAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            BeforeRunAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override void AfterRun(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await AfterRunAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            AfterRunAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override void Initialize(object tasq)
         {
-            Task.Run(async () =>
-            {
-                await InitializeAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            InitializeAsync((TProcess)tasq, p_CancellationToken).Wait();
         }
 
         internal override object Run(object key, object tasq)
         {
-            return Task.Run<object>(async () =>
+            TKey k = default;
+
+            if (key != null)
             {
-                TKey k = default;
+                k = (TKey)key;
+            }
 
-                if (key != null)
-                {
-                    k = (TKey)key;
-                }
-
-                return await RunAsync(k, (TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            return RunAsync(k, (TProcess)tasq, p_CancellationToken).Result;
         }
 
         internal override IEnumerable SelectionCriteria(object tasq)
         {
-            return Task.Run<IEnumerable>(async () =>
-            {
-                return await SelectionCriteriaAsync((TProcess)tasq);
-            }).GetAwaiter().GetResult();
+            return SelectionCriteriaAsync((TProcess)tasq, p_CancellationToken).Result;
         }
         #endregion
 

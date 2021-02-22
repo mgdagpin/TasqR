@@ -38,7 +38,10 @@ namespace TasqR
         }
 
         #region Run (No return)
-        public void Run(ITasq tasq)
+        public void Run
+            (
+                ITasq tasq
+            )
         {
             var tasqType = tasq.GetType();
 
@@ -61,7 +64,11 @@ namespace TasqR
             }
         }
 
-        public Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
+        public Task RunAsync
+            (
+                ITasq tasq,
+                CancellationToken cancellationToken = default
+            )
         {
             var tasqType = tasq.GetType();
 
@@ -85,12 +92,19 @@ namespace TasqR
             }
             else
             {
-                return RunImpl(tasqHandlerInstance, tasq);
+                return RunImpl(tasqHandlerInstance, tasq, cancellationToken);
             }
         }
 
-        private Task RunImpl(TasqHandler tasqHandlerInstance, ITasq tasq)
+        private Task RunImpl
+            (
+                TasqHandler tasqHandlerInstance,
+                ITasq tasq,
+                CancellationToken cancellationToken = default
+            )
         {
+            tasqHandlerInstance.p_CancellationToken = cancellationToken;
+
             TasqProcessEventHandler.Invoke
             (
                 startEvent: OnInitializeExecuting,
@@ -128,7 +142,10 @@ namespace TasqR
         #endregion
 
         #region Run (with return)
-        public TResponse Run<TResponse>(ITasq<TResponse> tasq)
+        public TResponse Run<TResponse>
+            (
+                ITasq<TResponse> tasq
+            )
         {
             var tasqType = tasq.GetType();
 
@@ -138,19 +155,29 @@ namespace TasqR
             return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq).Result;
         }
 
-        public Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+        public Task<TResponse> RunAsync<TResponse>
+            (
+                ITasq<TResponse> tasq,
+                CancellationToken cancellationToken = default
+            )
         {
             var tasqType = tasq.GetType();
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
             TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq);
+            return RunImplWithReturn<TResponse>(tasqHandlerInstance, tasq, cancellationToken);
         }
 
-        private Task<TResponse> RunImplWithReturn<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        private Task<TResponse> RunImplWithReturn<TResponse>
+            (
+                TasqHandler tasqHandlerInstance,
+                ITasq tasq,
+                CancellationToken cancellationToken = default
+            )
         {
             TResponse retVal;
+            tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
             TasqProcessEventHandler.Invoke
             (
@@ -189,7 +216,10 @@ namespace TasqR
         #endregion
 
         #region Run (with key)
-        public TResponse Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
+        public TResponse Run<TKey, TResponse>
+            (
+                ITasq<TKey, TResponse> tasq
+            )
         {
             var tasqType = tasq.GetType();
 
@@ -210,12 +240,18 @@ namespace TasqR
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
             TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq);
+            return RunImplWithKey<TResponse>(tasqHandlerInstance, tasq, cancellationToken);
         }
 
-        private Task<TResponse> RunImplWithKey<TResponse>(TasqHandler tasqHandlerInstance, ITasq tasq)
+        private Task<TResponse> RunImplWithKey<TResponse>
+            (
+                TasqHandler tasqHandlerInstance,
+                ITasq tasq,
+                CancellationToken cancellationToken = default
+            )
         {
             TResponse retVal = default;
+            tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
             TasqProcessEventHandler.Invoke
             (
