@@ -17,6 +17,12 @@ namespace TasqR
 
         }
 
+        public TasqException(Exception exception)
+            : base(InnermostException(exception).Message)
+        {
+
+        }
+
         public TasqException(string message, Exception innerException)
             : base(message, innerException)
         {
@@ -25,6 +31,16 @@ namespace TasqR
         protected TasqException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        private static Exception InnermostException(Exception exception)
+        {
+            if (exception.InnerException != null)
+            {
+                return InnermostException(exception.InnerException);
+            }
+
+            return exception;
         }
     }
 }

@@ -18,20 +18,21 @@ namespace TasqR.Common
 
         public static TypeTasqReference Resolve(Type t)
         {
-            var handlerInterface = t.GetInterfaces()
-                        .SingleOrDefault(a => a.IsGenericType && a.IsAssignableToTasqHandler());
+            var hI = t.GetInterfaces()
+                .Where(a => a.IsAssignableToTasqHandler())
+                .OrderByDescending(a => a.GenericTypeArguments.Length);
 
-            if (handlerInterface == null)
+            if (!t.IsAssignableToTasqHandler())
             {
                 throw new TasqException($"{t.FullName} not inheritted from {nameof(ITasqHandler)}");
             }
 
             return new TypeTasqReference
             {
-                TasqProcess = handlerInterface.GenericTypeArguments
+                TasqProcess = t.BaseType.GenericTypeArguments
                     .Single(a => a.IsAssignableToTasq()),
                 HandlerImplementation = t,
-                HandlerInterface = handlerInterface
+                HandlerInterface = hI.FirstOrDefault()
             };
         }
 

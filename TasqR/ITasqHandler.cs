@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,7 +35,7 @@ namespace TasqR
     public interface ITasqHandler<in TTasq, TKey, TResponse> : ITasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
-        IEnumerable<TKey> SelectionCriteria(TTasq tasq);
+        IEnumerable SelectionCriteria(TTasq tasq);
         TResponse Initialize(TTasq tasq);
         TResponse BeforeRun(TTasq tasq);
         TResponse Run(TKey key, TTasq tasqt);
@@ -44,10 +45,10 @@ namespace TasqR
     public interface ITasqHandlerAsync<in TTasq, TKey, TResponse> : ITasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
-        Task<IEnumerable<TKey>> SelectionCriteriaAsync(TTasq tasq, CancellationToken cancellationToken = default);
-        Task<TResponse> InitializeAsync(TTasq tasq, CancellationToken cancellationToken = default);
-        Task<TResponse> BeforeRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task<IEnumerable> SelectionCriteriaAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task InitializeAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task BeforeRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
         Task<TResponse> RunAsync(TKey key, TTasq tasq, CancellationToken cancellationToken = default);
-        Task<TResponse> AfterRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
+        Task AfterRunAsync(TTasq tasq, CancellationToken cancellationToken = default);
     }
 }

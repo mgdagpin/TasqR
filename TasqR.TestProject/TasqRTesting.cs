@@ -3,8 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
 using TasqR.TestProject.Test1;
 using TasqR.TestProject.Test2;
+using TasqR.TestProject.Test3;
 using TasqR.TestProject.Test4;
 using TasqR.TestProject.Test5;
+using TasqR.TestProject.Test6;
 
 namespace TasqR.TestProject
 {
@@ -28,6 +30,22 @@ namespace TasqR.TestProject
         }
 
         [TestMethod]
+        public void CanRunWithoutReturnForAsyncHandler()
+        {
+            var testModel = new Test3Model { StartNumber = 10 };
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithAsyncWithoutReturnHandler>();
+
+            var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new CommandWithAsyncWithoutReturn(testModel);
+
+            tasqR.Run(cmd);
+
+            Assert.AreEqual(11, testModel.StartNumber);
+        }
+
+        [TestMethod]
         public void CanRunWithReturn()
         {
             int startNumber = 8;
@@ -37,6 +55,22 @@ namespace TasqR.TestProject
 
             var tasqR = new TasqRObject(handlerResolver);
             var cmd = new SampleCommandWithReturn(startNumber);
+
+            int finalNumber = tasqR.Run(cmd);
+
+            Assert.AreEqual(9, finalNumber);
+        }
+
+        [TestMethod]
+        public void CanRunWithReturnForAsyncHandler()
+        {
+            int startNumber = 8;
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<TestCmdWithReturnForAsyncHandler>();
+
+            var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new TestCmdWithReturnForAsync(startNumber);
 
             int finalNumber = tasqR.Run(cmd);
 
@@ -57,6 +91,45 @@ namespace TasqR.TestProject
             tasqR.Run(cmd);
 
             Assert.IsTrue(cmd.AllAreCorrect);
+        }
+
+        [TestMethod]
+        public void CanRunWithKeyForAsyncHandler()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithKeyAsyncHandler>();
+
+            var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new CommandWithKeyAsync();
+
+            bool allAreTrue = true;
+
+            foreach (var item in tasqR.Run(cmd))
+            {
+                if (!item)
+                {
+                    allAreTrue = false;
+                }
+            }
+
+            Assert.IsTrue(allAreTrue);
+        }
+
+        [TestMethod]
+        public void CanRunWithKeyForAsyncHandlerBaseType()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithKeyAsyncHandler>();
+
+            var tasqR = new TasqRObject(handlerResolver);
+            var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
+
+
+            tasqR.Run(instance);
+
+            Assert.IsTrue(true);
         }
 
         [TestMethod]

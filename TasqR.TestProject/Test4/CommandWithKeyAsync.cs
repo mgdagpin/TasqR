@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,35 +8,36 @@ namespace TasqR.TestProject.Test4
 {
     public class CommandWithKeyAsync : ITasq<int, bool>
     {
-        public bool AllAreCorrect { get; set; }
+
     }
 
     public class CommandWithKeyAsyncHandler : TasqHandlerAsync<CommandWithKeyAsync, int, bool>
     {
         private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
 
-        public async override Task<IEnumerable<int>> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
+        public override Task<IEnumerable> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() =>
-            {
-                int[] keys = new[] { 1, 2, 3 };
+            int[] keys = new[] { 1, 2, 3 };
 
-                return keys;
-            });
+
+            return Task.FromResult((IEnumerable)keys);
         }
 
-        public async override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
+        public override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
         {
-            return await Task.Run(() =>
+            return Task.Run(() =>
             {
+                Thread.Sleep(1000);
+
                 if (p_Keys.Contains(key))
                 {
                     p_Keys.Remove(key);
+
+                    return Task.FromResult(true);
                 }
 
-                process.AllAreCorrect = !p_Keys.Any();
 
-                return true;
+                return Task.FromResult(false);
             });
         }
     }

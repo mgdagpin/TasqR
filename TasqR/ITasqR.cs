@@ -31,14 +31,14 @@ namespace TasqR
 
         TResponse Run<TResponse>(ITasq<TResponse> tasq);
 
-        TResponse Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq);
+        IEnumerable<TResponse> Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq);
 
 
         Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default);
 
         Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default);
 
-        Task<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default);
 
     }
 }

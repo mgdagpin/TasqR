@@ -2,8 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
+using TasqR.TestProject.Test2;
 using TasqR.TestProject.Test3;
 using TasqR.TestProject.Test4;
+using TasqR.TestProject.Test6;
 
 namespace TasqR.TestProject
 {
@@ -20,9 +22,17 @@ namespace TasqR.TestProject
             var tasqR = new TasqRObject(handlerResolver);
             var cmd = new CommandWithKeyAsync();
 
-            await tasqR.RunAsync(cmd);
+            bool allAreTrue = true;
 
-            Assert.IsTrue(cmd.AllAreCorrect);
+            foreach (var item in await tasqR.RunAsync(cmd))
+            {
+                if (!item)
+                {
+                    allAreTrue = false;
+                }
+            }
+
+            Assert.IsTrue(allAreTrue);
         }
 
         [TestMethod]
@@ -35,32 +45,17 @@ namespace TasqR.TestProject
             var tasqR = new TasqRObject(handlerResolver);
             var instance = (ITasq<int, bool>)Activator.CreateInstance(typeof(CommandWithKeyAsync));
 
-            await tasqR.RunAsync(instance);
+            bool allAreTrue = true;
 
-            Assert.IsTrue(((CommandWithKeyAsync)instance).AllAreCorrect);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TasqException))]
-        public async Task ExceptionWillThrownIfInstanceWith3GenericParamInDefaultRun()
-        {
-            try
+            foreach (var item in await tasqR.RunAsync(instance))
             {
-                var handlerResolver = new TasqHandlerResolver();
-
-                handlerResolver.Register<CommandWithKeyHandler>();
-
-                var tasqR = new TasqRObject(handlerResolver);
-                var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKey));
-
-                await tasqR.RunAsync(instance);
+                if (!item)
+                {
+                    allAreTrue = false;
+                }
             }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Cast your Tasq with ITasq<Int32,Boolean>", ex.Message);
 
-                throw;
-            }
+            Assert.IsTrue(allAreTrue);
         }
 
         [TestMethod]
@@ -79,6 +74,31 @@ namespace TasqR.TestProject
             Assert.AreEqual(11, testModel.StartNumber);
         }
 
+        [TestMethod]
+        public async Task CanRunWithReturn()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+            handlerResolver.Register<TestCmdWithReturnForAsyncHandler>();
+            var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new TestCmdWithReturnForAsync(2);
 
+            var result = await tasqR.RunAsync(cmd);
+
+            Assert.AreEqual(3, result);
+
+        }
+
+        [TestMethod]
+        public async Task CanRunWithReturnForNonAsyncHandler()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+            handlerResolver.Register<SampleCommandWithReturnHandler>();
+            var tasqR = new TasqRObject(handlerResolver);
+            var cmd = new SampleCommandWithReturn(2);
+
+            var result = await tasqR.RunAsync(cmd);
+
+            Assert.AreEqual(3, result);
+        }
     }
 }

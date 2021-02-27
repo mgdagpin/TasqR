@@ -132,7 +132,7 @@ namespace TasqR
 
         public virtual TResponse Initialize(TProcess tasq) => default;
 
-        public abstract IEnumerable<TKey> SelectionCriteria(TProcess tasq);
+        public abstract IEnumerable SelectionCriteria(TProcess tasq);
 
         public virtual TResponse BeforeRun(TProcess tasq) => default;
 
