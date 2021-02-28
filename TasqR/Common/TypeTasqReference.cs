@@ -29,11 +29,21 @@ namespace TasqR.Common
 
             return new TypeTasqReference
             {
-                TasqProcess = t.BaseType.GenericTypeArguments
+                TasqProcess = TryFindGenericBaseType(t).GenericTypeArguments
                     .Single(a => a.IsAssignableToTasq()),
                 HandlerImplementation = t,
                 HandlerInterface = hI.FirstOrDefault()
             };
+        }
+
+        private static Type TryFindGenericBaseType(Type t)
+        {
+            if (t.BaseType.IsGenericType)
+            {
+                return t.BaseType;
+            }
+
+            return TryFindGenericBaseType(t.BaseType);
         }
 
         public static IEnumerable<TypeTasqReference> GetAllTypeTasqReference(Assembly assembly)

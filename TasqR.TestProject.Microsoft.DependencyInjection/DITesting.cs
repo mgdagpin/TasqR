@@ -71,5 +71,20 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
                 Assert.AreEqual(3, finalNumber);
             }
         }
+
+        [TestMethod]
+        public void CanDetectDerivedHandlers()
+        {
+            using (var svc = new TestServiceCollection())
+            {
+                svc.Register();
+
+                var tasqr = svc.GetService<ITasqR>();
+
+                int finalNumber = tasqr.Run(new HandlerDerivedFromAnotherHandlerCmd(1));
+
+                Assert.AreEqual(3, finalNumber);
+            }
+        }
     }
 }
