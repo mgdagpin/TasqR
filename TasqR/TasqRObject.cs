@@ -45,8 +45,10 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -119,8 +121,10 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
@@ -210,8 +214,10 @@ namespace TasqR
         {
             TResponse retVal;
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -266,8 +272,10 @@ namespace TasqR
         {
             Task<TResponse> retVal = null;
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandler)
             {
@@ -350,8 +358,10 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -422,8 +432,10 @@ namespace TasqR
         {
             Task<IEnumerable<TResponse>> retVal = null;
             var tasqType = tasq.GetType();
+            LogHelper.Log(tasq);
 
             var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandler)
             {
