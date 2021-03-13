@@ -49,9 +49,14 @@ namespace TasqR.Common
         public static IEnumerable<TypeTasqReference> GetAllTypeTasqReference(Assembly assembly)
         {
             return assembly.DefinedTypes
-                    .Where(t => t.IsAssignableToTasqHandler() && IsConcrete(t))
+                    .Where(t => IsValidHandler(t))
                     .Select(a => Resolve(a))
                     .ToList();
+        }
+
+        public static bool IsValidHandler(Type type)
+        {
+            return type.IsAssignableToTasqHandler() && IsConcrete(type);
         }
 
         private static bool IsConcrete(Type type)

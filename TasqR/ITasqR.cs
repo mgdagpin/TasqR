@@ -27,6 +27,9 @@ namespace TasqR
 
         IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
+        ITasqR UsingAsHandler(Type type);
+
+
         void Run(ITasq tasq);
 
         TResponse Run<TResponse>(ITasq<TResponse> tasq);

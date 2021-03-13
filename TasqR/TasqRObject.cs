@@ -31,12 +31,21 @@ namespace TasqR
         #endregion
 
         private readonly ITasqHandlerResolver p_TasqHandlerResolver;
+        internal TasqHandlerDetail ForcedHandlerDetail;
 
         public TasqRObject(ITasqHandlerResolver tasqHandlerResolver)
         {
             p_TasqHandlerResolver = tasqHandlerResolver;
             ID = Guid.NewGuid();
         }
+
+        public ITasqR UsingAsHandler(Type type)
+        {
+            ForcedHandlerDetail = TasqHandlerDetail.TryGetFromType(type);
+
+            return this;
+        }
+
 
         #region Run (No return)
         public void Run
@@ -47,7 +56,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null 
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
@@ -123,7 +137,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
@@ -216,7 +235,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
@@ -274,7 +298,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandler)
@@ -360,7 +389,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
@@ -434,7 +468,12 @@ namespace TasqR
             var tasqType = tasq.GetType();
             LogHelper.Log(tasq);
 
-            var resolvedHandler = p_TasqHandlerResolver.ResolveHandler(tasqType);
+            var resolvedHandler = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
             LogHelper.Log(resolvedHandler.Handler);
 
             if (resolvedHandler.Handler is TasqHandler)
