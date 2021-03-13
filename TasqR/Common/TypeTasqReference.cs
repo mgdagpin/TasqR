@@ -19,8 +19,9 @@ namespace TasqR.Common
         public static TypeTasqReference Resolve(Type t)
         {
             var hI = t.GetInterfaces()
-                .Where(a => a.IsAssignableToTasqHandler())
-                .OrderByDescending(a => a.GenericTypeArguments.Length);
+                .Where(a => typeof(ITasqHandler).IsAssignableFrom(a))
+                .OrderByDescending(a => a.GenericTypeArguments.Length)
+                .ToList();
 
             if (!t.IsAssignableToTasqHandler())
             {

@@ -41,9 +41,31 @@ namespace TasqR.Common
 
         internal static bool IsAssignableToTasqHandler(this Type type)
         {
-            var toType = typeof(ITasqHandler);
+            if (type.BaseType == null)
+            {
+                return false;
+            }
 
-            return type.IsAssignableTo2(toType);
+            if (type.IsSubclassOf(typeof(TasqHandler))
+                || type.IsSubclassOf(typeof(TasqHandler<>))
+                || type.IsSubclassOf(typeof(TasqHandler<,>))
+                || type.IsSubclassOf(typeof(TasqHandler<,,>)))
+            {
+                return true;
+            }
+
+            if (type.IsSubclassOf(typeof(TasqHandlerAsync))
+                || type.IsSubclassOf(typeof(TasqHandlerAsync<>))
+                || type.IsSubclassOf(typeof(TasqHandlerAsync<,>))
+                || type.IsSubclassOf(typeof(TasqHandlerAsync<,,>)))
+            {
+                return true;
+            }
+
+            return false;
+            //var toType = typeof(ITasqHandler);
+
+            //return type.IsAssignableTo2(toType);
         }
 
         /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
