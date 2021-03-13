@@ -39,6 +39,26 @@ namespace TasqR.Common
             return type.IsAssignableTo2(toType);
         }
 
+        internal static bool IsDirectDerivedFromTasqHandler(this Type type)
+        {
+            if (type.BaseType == null)
+            {
+                return false;
+            }
+
+            if (type.BaseType == typeof(TasqHandler) || type.BaseType.BaseType == typeof(TasqHandler))
+            {
+                return true;
+            }
+
+            if (type.BaseType == typeof(TasqHandlerAsync) || type.BaseType.BaseType == typeof(TasqHandlerAsync))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         internal static bool IsAssignableToTasqHandler(this Type type)
         {
             if (type.BaseType == null)

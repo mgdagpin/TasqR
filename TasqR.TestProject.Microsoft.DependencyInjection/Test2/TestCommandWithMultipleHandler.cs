@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TasqR.TestProject.Test7
+namespace TasqR.TestProject.Microsoft.DependencyInjection.Test2
 {
     public class TestCommandWithMultipleHandler : ITasq<int>
     {
@@ -18,11 +18,21 @@ namespace TasqR.TestProject.Test7
 
     public class TestCommandWithMultipleHandlerHandler : TasqHandler<TestCommandWithMultipleHandler, int>
     {
+        private readonly ITasqR p_TasqR;
+
+        protected TestCommandWithMultipleHandlerHandler() { }
+
+        public TestCommandWithMultipleHandlerHandler(ITasqR tasqR)
+        {
+            p_TasqR = tasqR;
+        }
+
         public override int Run(TestCommandWithMultipleHandler request)
         {
             return request.StartNumber + 10;
         }
     }
+
 
     public class TestCommandWithMultipleHandlerHandler2 : TestCommandWithMultipleHandlerHandler
     {

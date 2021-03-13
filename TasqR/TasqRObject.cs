@@ -41,7 +41,7 @@ namespace TasqR
 
         public ITasqR UsingAsHandler(Type type)
         {
-            ForcedHandlerDetail = TasqHandlerDetail.TryGetFromType(type);
+            ForcedHandlerDetail = TasqHandlerDetail.TryGetFromType(type, p_TasqHandlerResolver);
 
             return this;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using TasqR.TestProject.Microsoft.DependencyInjection.Test2;
 
 namespace TasqR.TestProject.Microsoft.DependencyInjection.Common
 {
@@ -17,6 +18,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Common
         public void Register()
         {
             services.AddTasqR(Assembly.GetExecutingAssembly());
+
             serviceProvider = services.BuildServiceProvider();
         }
 

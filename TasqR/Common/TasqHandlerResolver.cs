@@ -11,7 +11,7 @@ namespace TasqR.Common
         protected Dictionary<Type, TypeTasqReference> TasqHanders { get; } = new Dictionary<Type, TypeTasqReference>();
         public IEnumerable<TypeTasqReference> RegisteredReferences => TasqHanders.Select(a => a.Value);
 
-        protected virtual object GetService(TypeTasqReference typeTasqReference)
+        public virtual object GetService(TypeTasqReference typeTasqReference)
         {
             return Activator.CreateInstance(typeTasqReference.HandlerImplementation);
         }
@@ -96,6 +96,30 @@ namespace TasqR.Common
                     Register(ttHandler);
                 }
             }
+        }
+
+        public IEnumerable<Type> GetAllDerivedHandlers(params Assembly[] assemblies)
+        {
+            List<Type> retVal = new List<Type>();
+            var assembliesToScan = assemblies.Distinct().ToList();
+
+            if (assembliesToScan.Count == 0)
+            {
+                assembliesToScan.Add(Assembly.GetExecutingAssembly());
+            }
+
+            foreach (var assembly in assembliesToScan)
+            {
+                assembly.DefinedTypes
+                    .Where(t => !t.IsDirectDerivedFromTasqHandler() && TypeTasqReference.IsValidHandler(t))
+                    .ToList()
+                    .ForEach(t =>
+                    {
+                        retVal.Add(t);
+                    });                
+            }
+
+            return retVal;
         }
     }
 }

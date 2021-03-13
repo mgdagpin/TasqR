@@ -25,6 +25,13 @@ namespace TasqR
             {
                 services.AddTransient(ttHandler.HandlerImplementation);
             }
+
+            var allDerivedHandlers = s_TasqHandlerResolver.GetAllDerivedHandlers(assemblies);
+
+            foreach (var dh in allDerivedHandlers)
+            {
+                services.AddTransient(dh);
+            }
         }
     }
 
@@ -37,7 +44,7 @@ namespace TasqR
             p_ServiceProvider = serviceProvider;
         }
 
-        protected override object GetService(TypeTasqReference typeTasqReference)
+        public override object GetService(TypeTasqReference typeTasqReference)
         {
             return p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
         }

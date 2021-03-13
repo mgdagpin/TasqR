@@ -7,7 +7,6 @@ using TasqR.TestProject.Test3;
 using TasqR.TestProject.Test4;
 using TasqR.TestProject.Test5;
 using TasqR.TestProject.Test6;
-using TasqR.TestProject.Test7;
 
 namespace TasqR.TestProject
 {
@@ -178,21 +177,6 @@ namespace TasqR.TestProject
 
                 throw;
             }
-        }
-
-        [TestMethod]
-        public void CanRunWithMultiplePassedHandler()
-        {
-            var handlerResolver = new TasqHandlerResolver();
-            handlerResolver.Register<TestCommandWithMultipleHandlerHandler>();
-
-            var tasqR = new TasqRObject(handlerResolver);
-
-            var cmd = new TestCommandWithMultipleHandler(5);
-
-            Assert.AreEqual(15, tasqR.Run(cmd));
-            Assert.AreEqual(25, tasqR.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler2)).Run(cmd));
-            Assert.AreEqual(25, tasqR.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler3)).Run(cmd));
-        }
+        }        
     }
 }

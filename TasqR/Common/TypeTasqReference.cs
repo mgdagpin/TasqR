@@ -50,7 +50,7 @@ namespace TasqR.Common
         public static IEnumerable<TypeTasqReference> GetAllTypeTasqReference(Assembly assembly)
         {
             return assembly.DefinedTypes
-                    .Where(t => IsValidHandler(t))
+                    .Where(t => t.IsDirectDerivedFromTasqHandler())
                     .Select(a => Resolve(a))
                     .ToList();
         }

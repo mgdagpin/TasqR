@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.TestProject.Microsoft.DependencyInjection.Common;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test1;
+using TasqR.TestProject.Microsoft.DependencyInjection.Test2;
 
 namespace TasqR.TestProject.Microsoft.DependencyInjection
 {
@@ -73,7 +74,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         }
 
         [TestMethod]
-        public void CanDetectDerivedHandlers()
+        public void CanRunWithMultiplePassedHandlerBase()
         {
             using (var svc = new TestServiceCollection())
             {
@@ -81,9 +82,39 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
 
                 var tasqr = svc.GetService<ITasqR>();
 
-                int finalNumber = tasqr.Run(new HandlerDerivedFromAnotherHandlerCmd(1));
+                var cmd = new TestCommandWithMultipleHandler(5);
 
-                Assert.AreEqual(3, finalNumber);
+                Assert.AreEqual(15, tasqr.Run(cmd));
+            }
+        }
+
+        [TestMethod]
+        public void CanRunWithMultiplePassedHandlerInherit1()
+        {
+            using (var svc = new TestServiceCollection())
+            {
+                svc.Register();
+
+                var tasqr = svc.GetService<ITasqR>();
+
+                var cmd = new TestCommandWithMultipleHandler(5);
+
+                Assert.AreEqual(25, tasqr.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler2)).Run(cmd));
+            }
+        }
+
+        [TestMethod]
+        public void CanRunWithMultiplePassedHandlerInherit2()
+        {
+            using (var svc = new TestServiceCollection())
+            {
+                svc.Register();
+
+                var tasqr = svc.GetService<ITasqR>();
+
+                var cmd = new TestCommandWithMultipleHandler(5);
+
+                Assert.AreEqual(25, tasqr.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler3)).Run(cmd));
             }
         }
     }

@@ -9,7 +9,7 @@ namespace TasqR.Common
         public TypeTasqReference Reference { get; set; }
 
 
-        public static TasqHandlerDetail TryGetFromType(Type type)
+        public static TasqHandlerDetail TryGetFromType(Type type, ITasqHandlerResolver handlerResolver)
         {
             if (!TypeTasqReference.IsValidHandler(type))
             {
@@ -20,7 +20,7 @@ namespace TasqR.Common
 
             return new TasqHandlerDetail
             {
-                Handler = (ITasqHandler)Activator.CreateInstance(type),
+                Handler = (ITasqHandler)handlerResolver.GetService(reference),
                 Reference = reference
             };
         }
