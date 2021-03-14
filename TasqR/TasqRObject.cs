@@ -46,6 +46,11 @@ namespace TasqR
             return this;
         }
 
+        public ITasqR UsingAsHandler<THandler>() where THandler : ITasqHandler
+        {
+            return UsingAsHandler(typeof(THandler));
+        }
+
 
         #region Run (No return)
         public void Run
@@ -567,7 +572,7 @@ namespace TasqR
             }
 
             return retVal;
-        }
+        }        
         #endregion
     }
 }
