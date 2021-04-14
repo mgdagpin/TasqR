@@ -13,6 +13,8 @@ namespace TasqR
         public IEnumerable<TypeTasqReference> RegisteredReferences => p_TasqHandlerResolver.RegisteredReferences;
 
         #region Events
+        public event LogEventHandler OnLog;
+
         public event ProcessEventHandler OnInitializeExecuting;
         public event ProcessEventHandler OnInitializeExecuted;
 
@@ -59,7 +61,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null 
                 ? ForcedHandlerDetail
@@ -67,7 +69,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -140,7 +142,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -148,7 +150,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
@@ -238,7 +240,7 @@ namespace TasqR
         {
             TResponse retVal;
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -246,7 +248,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -301,7 +303,7 @@ namespace TasqR
         {
             Task<TResponse> retVal = null;
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -309,7 +311,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {
@@ -392,7 +394,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -400,7 +402,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -471,7 +473,7 @@ namespace TasqR
         {
             Task<IEnumerable<TResponse>> retVal = null;
             var tasqType = tasq.GetType();
-            LogHelper.Log(tasq);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -479,7 +481,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            LogHelper.Log(resolvedHandler.Handler);
+            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {

@@ -10,6 +10,8 @@ namespace TasqR
     {
         Guid ID { get; }
 
+        event LogEventHandler OnLog;
+
         event ProcessEventHandler OnInitializeExecuting;
         event ProcessEventHandler OnInitializeExecuted;
 
