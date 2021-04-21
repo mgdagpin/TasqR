@@ -15,30 +15,23 @@ namespace TasqR.TestProject.Test4
     {
         private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
 
-        public override Task<IEnumerable> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
+        public async override Task<IEnumerable> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
         {
-            int[] keys = new[] { 1, 2, 3 };
-
-
-            return Task.FromResult((IEnumerable)keys);
+            return new[] { 1, 2, 3 };
         }
 
-        public override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
+        public async override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() =>
+            await Task.Delay(1000);
+
+            if (p_Keys.Contains(key))
             {
-                Thread.Sleep(1000);
+                p_Keys.Remove(key);
 
-                if (p_Keys.Contains(key))
-                {
-                    p_Keys.Remove(key);
+                return true;
+            }
 
-                    return Task.FromResult(true);
-                }
-
-
-                return Task.FromResult(false);
-            });
+            return false;
         }
     }
 }

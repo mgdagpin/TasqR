@@ -9,51 +9,51 @@ namespace TasqR
     {
         internal CancellationToken p_CancellationToken { get; set; }
 
-        internal virtual object AfterRun(object tasq) => throw new NotImplementedException();
-        internal virtual object BeforeRun(object tasq) => throw new NotImplementedException();
-        internal virtual object Initialize(object tasq) => throw new NotImplementedException();
-        internal virtual object Run(object key, object tasq) => throw new NotImplementedException();
-        internal virtual IEnumerable SelectionCriteria(object tasq) => throw new NotImplementedException();
+        internal virtual object AfterRun(object request) => throw new NotImplementedException();
+        internal virtual object BeforeRun(object request) => throw new NotImplementedException();
+        internal virtual object Initialize(object request) => throw new NotImplementedException();
+        internal virtual object Run(object key, object request) => throw new NotImplementedException();
+        internal virtual IEnumerable SelectionCriteria(object request) => throw new NotImplementedException();
     }
 
     public abstract class TasqHandler<TProcess> : TasqHandler, ITasqHandler<TProcess>
        where TProcess : ITasq
     {
         #region TasqHandler Calls
-        internal override object BeforeRun(object tasq)
+        internal override object BeforeRun(object request)
         {
-            BeforeRun((TProcess)tasq);
+            BeforeRun((TProcess)request);
 
             return null;
         }
 
-        internal override object AfterRun(object tasq)
+        internal override object AfterRun(object request)
         {
-            AfterRun((TProcess)tasq);
+            AfterRun((TProcess)request);
 
             return null;
         }
 
-        internal override object Initialize(object tasq)
+        internal override object Initialize(object request)
         {
-            Initialize((TProcess)tasq);
+            Initialize((TProcess)request);
 
             return null;
         }
 
-        internal override object Run(object key, object tasq)
+        internal override object Run(object key, object request)
         {
-            Run((TProcess)tasq);
+            Run((TProcess)request);
 
             return null;
         }
         #endregion
 
-        public virtual void AfterRun(TProcess tasq) { }
+        public virtual void AfterRun(TProcess request) { }
 
-        public virtual void BeforeRun(TProcess tasq) { }
+        public virtual void BeforeRun(TProcess request) { }
 
-        public virtual void Initialize(TProcess tasq) { }
+        public virtual void Initialize(TProcess request) { }
 
         public abstract void Run(TProcess request);
     }
@@ -62,32 +62,32 @@ namespace TasqR
         where TProcess : ITasq<TResponse>
     {
         #region TasqHandler Calls
-        internal override object BeforeRun(object tasq)
+        internal override object BeforeRun(object request)
         {
-            return BeforeRun((TProcess)tasq);
+            return BeforeRun((TProcess)request);
         }
 
-        internal override object AfterRun(object tasq)
+        internal override object AfterRun(object request)
         {
-            return AfterRun((TProcess)tasq);
+            return AfterRun((TProcess)request);
         }
 
-        internal override object Initialize(object tasq)
+        internal override object Initialize(object request)
         {
-            return Initialize((TProcess)tasq);
+            return Initialize((TProcess)request);
         }
 
-        internal override object Run(object key, object tasq)
+        internal override object Run(object key, object request)
         {
-            return Run((TProcess)tasq);
+            return Run((TProcess)request);
         }
         #endregion
 
-        public virtual TResponse AfterRun(TProcess tasq) => default;
+        public virtual TResponse AfterRun(TProcess request) => default;
 
-        public virtual TResponse BeforeRun(TProcess tasq) => default;
+        public virtual TResponse BeforeRun(TProcess request) => default;
 
-        public virtual TResponse Initialize(TProcess tasq) => default;
+        public virtual TResponse Initialize(TProcess request) => default;
 
         public abstract TResponse Run(TProcess request);
     }
@@ -96,22 +96,22 @@ namespace TasqR
         where TProcess : ITasq<TKey, TResponse>
     {
         #region TasqHandler Calls
-        internal override object BeforeRun(object tasq)
+        internal override object BeforeRun(object request)
         {
-            return BeforeRun((TProcess)tasq);
+            return BeforeRun((TProcess)request);
         }
 
-        internal override object AfterRun(object tasq)
+        internal override object AfterRun(object request)
         {
-            return AfterRun((TProcess)tasq);
+            return AfterRun((TProcess)request);
         }
 
-        internal override object Initialize(object tasq)
+        internal override object Initialize(object request)
         {
-            return Initialize((TProcess)tasq);
+            return Initialize((TProcess)request);
         }
 
-        internal override object Run(object key, object tasq)
+        internal override object Run(object key, object request)
         {
             TKey k = default;
 
@@ -120,25 +120,22 @@ namespace TasqR
                 k = (TKey)key;
             }
 
-            return Run(k, (TProcess)tasq);
+            return Run(k, (TProcess)request);
         }
 
-        internal override IEnumerable SelectionCriteria(object tasq)
+        internal override IEnumerable SelectionCriteria(object request)
         {
-            return SelectionCriteria((TProcess)tasq);
+            return SelectionCriteria((TProcess)request);
         }
         #endregion
 
 
-        public virtual TResponse Initialize(TProcess tasq) => default;
+        public virtual TResponse Initialize(TProcess request) => default;
+        public virtual TResponse BeforeRun(TProcess request) => default;
+        public virtual TResponse AfterRun(TProcess request) => default;
 
-        public abstract IEnumerable SelectionCriteria(TProcess tasq);
 
-        public virtual TResponse BeforeRun(TProcess tasq) => default;
-
+        public abstract IEnumerable SelectionCriteria(TProcess request);
         public abstract TResponse Run(TKey key, TProcess request);
-
-
-        public virtual TResponse AfterRun(TProcess tasq) => default;
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
 using TasqR.TestProject.Test1;
@@ -7,6 +8,7 @@ using TasqR.TestProject.Test3;
 using TasqR.TestProject.Test4;
 using TasqR.TestProject.Test5;
 using TasqR.TestProject.Test6;
+using TasqR.TestProject.Test7;
 
 namespace TasqR.TestProject
 {
@@ -178,5 +180,25 @@ namespace TasqR.TestProject
                 throw;
             }
         }        
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public async Task WillThrowExceptionFromAsyncHandler()
+        {
+            try
+            {
+                var handlerResolver = new TasqHandlerResolver();
+
+                handlerResolver.Register<TestWithErrorCmdHandler>();
+                var tasqR = new TasqRObject(handlerResolver);
+
+                var cmd = new TestWithErrorCmd();
+                await tasqR.RunAsync(cmd);
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.GetBaseException();
+            }
+        }
     }
 }
