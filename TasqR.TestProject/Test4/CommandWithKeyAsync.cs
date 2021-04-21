@@ -8,27 +8,30 @@ namespace TasqR.TestProject.Test4
 {
     public class CommandWithKeyAsync : ITasq<int, bool>
     {
-
+        public List<int> Keys { get; set; } = Enumerable.Range(1, 100).ToList();
     }
 
     public class CommandWithKeyAsyncHandler : TasqHandlerAsync<CommandWithKeyAsync, int, bool>
     {
-        private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
-
         public async override Task<IEnumerable> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
         {
-            return new[] { 1, 2, 3 };
+            await Task.Delay(2000);
+
+            return tasq.Keys;
         }
 
         public async override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(1000);
+            await Task.Delay(3000);
 
-            if (p_Keys.Contains(key))
+            lock(process)
             {
-                p_Keys.Remove(key);
+                if (process.Keys.Contains(key))
+                {
+                    process.Keys.Remove(key);
 
-                return true;
+                    return true;
+                }
             }
 
             return false;

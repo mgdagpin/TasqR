@@ -17,7 +17,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -25,7 +25,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
@@ -59,54 +59,25 @@ namespace TasqR
 
             var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-            var arg1 = new ProcessEventArgs();
-            var arg2 = new ProcessEventArgs();
-            var arg3 = new ProcessEventArgs();
-            var arg4 = new ProcessEventArgs();
-
-            arg1.StartStopwatch();
-            OnInitializeExecuting?.Invoke(tasq, arg1);
 
             return tasqHandlerInstance.InitializeAsync(tasq)
                 .ContinueWith(res1 =>
                 {
-                    arg1.StopStopwatch();
-                    OnInitializeExecuted?.Invoke(tasq, arg1);
-
                     if (res1.IsFaulted) throw new TasqException(res1.Exception);
-
-                    arg2.StartStopwatch();
-                    OnBeforeRunExecuting?.Invoke(tasq, arg2);
 
                     return tasqHandlerInstance.BeforeRunAsync(tasq)
                         .ContinueWith(res2 =>
                         {
-                            arg2.StopStopwatch();
-                            OnBeforeRunExecuted?.Invoke(tasq, arg2);
-
                             if (res2.IsFaulted) throw new TasqException(res2.Exception);
-
-                            arg3.StartStopwatch();
-                            OnRunExecuting?.Invoke(tasq, arg3);
 
                             return tasqHandlerInstance.XRunAsync(null, tasq)
                                 .ContinueWith(res3 =>
                                 {
-                                    arg3.StopStopwatch();
-                                    OnRunExecuted?.Invoke(tasq, arg3);
-
                                     if (res3.IsFaulted) throw new TasqException(res3.Exception);
-
-
-                                    arg4.StartStopwatch();
-                                    OnAfterRunExecuting?.Invoke(tasq, arg4);
 
                                     return tasqHandlerInstance.AfterRunAsync(tasq)
                                         .ContinueWith(res4 =>
                                         {
-                                            arg4.StopStopwatch();
-                                            OnAfterRunExecuted?.Invoke(tasq, arg4);
-
                                             if (res4.IsFaulted) throw new TasqException(res4.Exception);
 
                                             return res3;
@@ -126,7 +97,7 @@ namespace TasqR
         {
             Task<TResponse> retVal = null;
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -134,7 +105,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {
@@ -146,55 +117,24 @@ namespace TasqR
 
                 tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
-
-                var arg1 = new ProcessEventArgs();
-                var arg2 = new ProcessEventArgs();
-                var arg3 = new ProcessEventArgs();
-                var arg4 = new ProcessEventArgs();
-
-                arg1.StartStopwatch();
-                OnInitializeExecuting?.Invoke(tasq, arg1);
-
                 retVal = tasqHandlerInstance.InitializeAsync(tasq)
                     .ContinueWith(res1 =>
                     {
-                        arg1.StopStopwatch();
-                        OnInitializeExecuted?.Invoke(tasq, arg1);
-
                         if (res1.IsFaulted) throw new TasqException(res1.Exception);
-
-                        arg2.StartStopwatch();
-                        OnBeforeRunExecuting?.Invoke(tasq, arg2);
 
                         return tasqHandlerInstance.BeforeRunAsync(tasq)
                             .ContinueWith(res2 =>
                             {
-                                arg2.StopStopwatch();
-                                OnBeforeRunExecuted?.Invoke(tasq, arg2);
-
                                 if (res2.IsFaulted) throw new TasqException(res2.Exception);
-
-                                arg3.StartStopwatch();
-                                OnRunExecuting?.Invoke(tasq, arg3);
 
                                 return tasqHandlerInstance.XRunAsync(null, tasq)
                                     .ContinueWith(res3 =>
                                     {
-                                        arg3.StopStopwatch();
-                                        OnRunExecuted?.Invoke(tasq, arg3);
-
                                         if (res3.IsFaulted) throw new TasqException(res3.Exception);
-
-
-                                        arg4.StartStopwatch();
-                                        OnAfterRunExecuting?.Invoke(tasq, arg4);
 
                                         return tasqHandlerInstance.AfterRunAsync(tasq)
                                             .ContinueWith(res4 =>
                                             {
-                                                arg4.StopStopwatch();
-                                                OnAfterRunExecuted?.Invoke(tasq, arg4);
-
                                                 if (res4.IsFaulted) throw new TasqException(res4.Exception);
 
                                                 return (Task<TResponse>)res3;
@@ -217,7 +157,7 @@ namespace TasqR
         {
             Task<IEnumerable<TResponse>> retVal = null;
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -225,7 +165,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {
@@ -235,86 +175,50 @@ namespace TasqR
             {
                 TasqHandlerAsync tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-                var arg1 = new ProcessEventArgs();
-                var arg2 = new ProcessEventArgs();
-                var arg3 = new ProcessEventArgs();
-                var arg4 = new ProcessEventArgs();
-                var arg5 = new ProcessEventArgs();
-
-                arg1.StartStopwatch();
-                OnInitializeExecuting?.Invoke(tasq, arg1);
-
                 retVal = tasqHandlerInstance.InitializeAsync(tasq)
-                    .ContinueWith(res1 =>
+                    .ContinueWith(async res1 =>
                     {
-                        arg1.StopStopwatch();
-                        OnInitializeExecuted?.Invoke(tasq, arg1);
-
                         if (res1.IsFaulted) throw new TasqException(res1.Exception);
-
-                        arg2.StartStopwatch();
-                        OnSelectionCriteriaExecuting?.Invoke(tasq, arg2);
-
 
                         List<TResponse> abRet = new List<TResponse>();
 
-                        return tasqHandlerInstance.SelectionCriteriaAsync(tasq)
-                            .ContinueWith(a =>
-                            {
-                                List<Task<TResponse>> listOfTask = new List<Task<TResponse>>();
+                        var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
 
-                                foreach (var item in a.Result)
-                                {
-                                    var task = tasqHandlerInstance.BeforeRunAsync(tasq)
-                                             .ContinueWith(res2 =>
+                        List<Task<TResponse>> listOfTask = new List<Task<TResponse>>();
+
+                        foreach (var item in selectionCriteria)
+                        {
+                            var task = tasqHandlerInstance.BeforeRunAsync(tasq)
+                                     .ContinueWith(res2 =>
+                                     {
+                                         if (res2.IsFaulted) throw new TasqException(res2.Exception);
+
+                                         return tasqHandlerInstance.XRunAsync(item, tasq)
+                                             .ContinueWith(res3 =>
                                              {
-                                                 arg3.StopStopwatch();
-                                                 OnBeforeRunExecuted?.Invoke(tasq, arg3);
+                                                 if (res3.IsFaulted) throw new TasqException(res3.Exception);
 
-                                                 if (res2.IsFaulted) throw new TasqException(res2.Exception);
-
-                                                 arg4.StartStopwatch();
-                                                 OnRunExecuting?.Invoke(tasq, arg4);
-
-                                                 return tasqHandlerInstance.XRunAsync(item, tasq)
-                                                     .ContinueWith(res3 =>
+                                                 return tasqHandlerInstance.AfterRunAsync(tasq)
+                                                     .ContinueWith(res5 =>
                                                      {
-                                                         arg4.StopStopwatch();
-                                                         OnRunExecuted?.Invoke(tasq, arg4);
+                                                         if (res5.IsFaulted) throw new TasqException(res5.Exception);
 
-                                                         if (res3.IsFaulted) throw new TasqException(res3.Exception);
+                                                         var tasR3 = (Task<TResponse>)res3;
 
+                                                         abRet.Add(tasR3.Result);
 
-                                                         arg5.StartStopwatch();
-                                                         OnAfterRunExecuting?.Invoke(tasq, arg5);
-
-                                                         return tasqHandlerInstance.AfterRunAsync(tasq)
-                                                             .ContinueWith(res5 =>
-                                                             {
-                                                                 arg5.StopStopwatch();
-                                                                 OnAfterRunExecuted?.Invoke(tasq, arg5);
-
-                                                                 if (res5.IsFaulted) throw new TasqException(res5.Exception);
-
-                                                                 var tasR3 = (Task<TResponse>)res3;
-
-                                                                 abRet.Add(tasR3.Result);
-
-                                                                 return tasR3;
-                                                             }).Unwrap();
-                                                     }, TaskContinuationOptions.AttachedToParent).Unwrap();
+                                                         return tasR3;
+                                                     }).Unwrap();
                                              }, TaskContinuationOptions.AttachedToParent).Unwrap();
+                                     }, TaskContinuationOptions.AttachedToParent).Unwrap();
 
-                                    listOfTask.Add(task);
-                                }
+                            listOfTask.Add(task);
+                        }
 
-                                return Task.WhenAll(listOfTask)
-                                    .ContinueWith(ret =>
-                                    {
-                                        return Task.FromResult((IEnumerable<TResponse>)abRet);
-                                    }).Unwrap();
-                            })
-                            .Unwrap();
+                        var allResult = await Task.WhenAll(listOfTask);
+
+                        return allResult.AsEnumerable();
+
                     }).Unwrap();
             }
 

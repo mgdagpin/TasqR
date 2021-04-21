@@ -9,11 +9,11 @@ namespace TasqR
     {
         internal CancellationToken p_CancellationToken { get; set; }
 
-        internal virtual object AfterRun(object request) => throw new NotImplementedException();
         internal virtual object BeforeRun(object request) => throw new NotImplementedException();
         internal virtual object Initialize(object request) => throw new NotImplementedException();
-        internal virtual object Run(object key, object request) => throw new NotImplementedException();
         internal virtual IEnumerable SelectionCriteria(object request) => throw new NotImplementedException();
+        internal virtual object Run(object key, object request) => throw new NotImplementedException();
+        internal virtual object AfterRun(object request) => throw new NotImplementedException();
     }
 
     public abstract class TasqHandler<TProcess> : TasqHandler, ITasqHandler<TProcess>

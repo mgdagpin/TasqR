@@ -12,21 +12,6 @@ namespace TasqR
 
         event LogEventHandler OnLog;
 
-        event ProcessEventHandler OnInitializeExecuting;
-        event ProcessEventHandler OnInitializeExecuted;
-
-        event ProcessEventHandler OnSelectionCriteriaExecuting;
-        event ProcessEventHandler OnSelectionCriteriaExecuted;
-
-        event ProcessEventHandler OnBeforeRunExecuting;
-        event ProcessEventHandler OnBeforeRunExecuted;
-
-        event ProcessEventHandler OnRunExecuting;
-        event ProcessEventHandler OnRunExecuted;
-
-        event ProcessEventHandler OnAfterRunExecuting;
-        event ProcessEventHandler OnAfterRunExecuted;
-
         IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
         ITasqR UsingAsHandler(Type type);

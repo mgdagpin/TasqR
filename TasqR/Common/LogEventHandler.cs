@@ -4,34 +4,39 @@ using System.Text;
 
 namespace TasqR
 {
-    public class LogEventHandlerArgs : EventArgs
+    public class LogEventHandlerEventArgs : EventArgs
     {
         public string Message { get; set; }
 
         public Exception Exception { get; set; }
 
-        internal LogEventHandlerArgs(ITasqHandler handler) 
-        {
-            Message = $"Handler: {handler.GetType().FullName}";
+        internal LogEventHandlerEventArgs(string message) 
+        { 
+            Message = message; 
         }
 
-        internal LogEventHandlerArgs(ITasq tasq) 
+        internal LogEventHandlerEventArgs(ITasqHandler handler) 
+            : this($"Handler: {handler.GetType().FullName}")
         {
-            Message = $"Tasq: {tasq.GetType().FullName}";
         }
 
-        internal LogEventHandlerArgs(ITasqHandler handler, Exception exception)
+        internal LogEventHandlerEventArgs(ITasq tasq) 
+            : this($"Tasq: {tasq.GetType().FullName}")
+        {
+        }
+
+        internal LogEventHandlerEventArgs(ITasqHandler handler, Exception exception)
             : this(handler)
         {
             Exception = exception;
         }
 
-        internal LogEventHandlerArgs(ITasq tasq, Exception exception)
+        internal LogEventHandlerEventArgs(ITasq tasq, Exception exception)
             : this(tasq)
         {
             Exception = exception;
         }
     }
 
-    public delegate void LogEventHandler(object sender, LogEventHandlerArgs args);
+    public delegate void LogEventHandler(object sender, TasqProcess process, LogEventHandlerEventArgs args);
 }

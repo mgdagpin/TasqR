@@ -12,25 +12,7 @@ namespace TasqR
         public Guid ID { get; private set; }
         public IEnumerable<TypeTasqReference> RegisteredReferences => p_TasqHandlerResolver.RegisteredReferences;
 
-        #region Events
         public event LogEventHandler OnLog;
-
-        public event ProcessEventHandler OnInitializeExecuting;
-        public event ProcessEventHandler OnInitializeExecuted;
-
-        public event ProcessEventHandler OnSelectionCriteriaExecuting;
-        public event ProcessEventHandler OnSelectionCriteriaExecuted;
-
-
-        public event ProcessEventHandler OnBeforeRunExecuting;
-        public event ProcessEventHandler OnBeforeRunExecuted;
-
-        public event ProcessEventHandler OnRunExecuting;
-        public event ProcessEventHandler OnRunExecuted;
-
-        public event ProcessEventHandler OnAfterRunExecuting;
-        public event ProcessEventHandler OnAfterRunExecuted;
-        #endregion
 
         private readonly ITasqHandlerResolver p_TasqHandlerResolver;
         internal TasqHandlerDetail ForcedHandlerDetail;
@@ -61,7 +43,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null 
                 ? ForcedHandlerDetail
@@ -69,7 +51,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -100,37 +82,10 @@ namespace TasqR
                 }
                 else
                 {
-                    TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnInitializeExecuting,
-                        method: () => tasqHandlerInstance.Initialize(tasq),
-                        tasq: tasq,
-                        endEvent: OnInitializeExecuted
-                    );
-
-                    TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnBeforeRunExecuting,
-                        method: () => tasqHandlerInstance.BeforeRun(tasq),
-                        tasq: tasq,
-                        endEvent: OnBeforeRunExecuted
-                    );
-
-                    TasqProcessEventHandler.Invoke
-                        (
-                            startEvent: OnRunExecuting,
-                            method: () => tasqHandlerInstance.Run(null, tasq),
-                            tasq: tasq,
-                            endEvent: OnRunExecuted
-                        );
-
-                    TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnAfterRunExecuting,
-                        method: () => tasqHandlerInstance.AfterRun(tasq),
-                        tasq: tasq,
-                        endEvent: OnAfterRunExecuted
-                    );
+                    tasqHandlerInstance.Initialize(tasq);
+                    tasqHandlerInstance.BeforeRun(tasq);
+                    tasqHandlerInstance.Run(null, tasq);
+                    tasqHandlerInstance.AfterRun(tasq);
                 }
             }
         }
@@ -144,7 +99,7 @@ namespace TasqR
         {
             TResponse retVal;
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -152,7 +107,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -163,37 +118,10 @@ namespace TasqR
                 TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
 
-                TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnInitializeExecuting,
-                    method: () => tasqHandlerInstance.Initialize(tasq),
-                    tasq: tasq,
-                    endEvent: OnInitializeExecuted
-                );
-
-                TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnBeforeRunExecuting,
-                    method: () => tasqHandlerInstance.BeforeRun(tasq),
-                    tasq: tasq,
-                    endEvent: OnBeforeRunExecuted
-                );
-
-                retVal = TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnRunExecuting,
-                        method: () => (TResponse)tasqHandlerInstance.Run(null, tasq),
-                        tasq: tasq,
-                        endEvent: OnRunExecuted
-                    );
-
-                TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnAfterRunExecuting,
-                    method: () => tasqHandlerInstance.AfterRun(tasq),
-                    tasq: tasq,
-                    endEvent: OnAfterRunExecuted
-                );
+                tasqHandlerInstance.Initialize(tasq);
+                tasqHandlerInstance.BeforeRun(tasq);
+                retVal = (TResponse)tasqHandlerInstance.Run(null, tasq);
+                tasqHandlerInstance.AfterRun(tasq);
             }
 
             return retVal;
@@ -207,7 +135,7 @@ namespace TasqR
             )
         {
             var tasqType = tasq.GetType();
-            OnLog?.Invoke(this, new LogEventHandlerArgs(tasq));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
             var resolvedHandler = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
@@ -215,7 +143,7 @@ namespace TasqR
 
             ForcedHandlerDetail = null;
 
-            OnLog?.Invoke(this, new LogEventHandlerArgs(resolvedHandler.Handler));
+            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
@@ -226,53 +154,22 @@ namespace TasqR
 
             List<TResponse> retVal = new List<TResponse>();
 
-            TasqProcessEventHandler.Invoke
-            (
-                startEvent: OnInitializeExecuting,
-                method: () => tasqHandlerInstance.Initialize(tasq),
-                tasq: tasq,
-                endEvent: OnInitializeExecuted
-            );
+            tasqHandlerInstance.Initialize(tasq);
+            tasqHandlerInstance.BeforeRun(tasq);
 
-            TasqProcessEventHandler.Invoke
-            (
-                startEvent: OnBeforeRunExecuting,
-                method: () => tasqHandlerInstance.BeforeRun(tasq),
-                tasq: tasq,
-                endEvent: OnBeforeRunExecuted
-            );
-
-            var selectionCriteria = TasqProcessEventHandler.Invoke
-                (
-                    startEvent: OnSelectionCriteriaExecuting,
-                    method: () => tasqHandlerInstance.SelectionCriteria(tasq),
-                    tasq: tasq,
-                    endEvent: OnSelectionCriteriaExecuted
-                );
+            var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
 
             if (selectionCriteria != null)
             {
                 foreach (var eachSelection in selectionCriteria)
                 {
-                    var result = TasqProcessEventHandler.Invoke
-                    (
-                        startEvent: OnRunExecuting,
-                        method: () => (TResponse)tasqHandlerInstance.Run(eachSelection, tasq),
-                        tasq: tasq,
-                        endEvent: OnRunExecuted
-                    );
+                    var result = (TResponse)tasqHandlerInstance.Run(eachSelection, tasq);
 
                     retVal.Add(result);
                 }
             }
 
-            TasqProcessEventHandler.Invoke
-            (
-                startEvent: OnAfterRunExecuting,
-                method: () => tasqHandlerInstance.AfterRun(tasq),
-                tasq: tasq,
-                endEvent: OnAfterRunExecuted
-            );
+            tasqHandlerInstance.AfterRun(tasq);
 
 
             return retVal;

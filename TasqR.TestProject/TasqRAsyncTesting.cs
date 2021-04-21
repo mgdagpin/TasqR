@@ -22,16 +22,23 @@ namespace TasqR.TestProject
             var tasqR = new TasqRObject(handlerResolver);
             var cmd = new CommandWithKeyAsync();
 
-            bool allAreTrue = true;
+            int initialCount = cmd.Keys.Count;
 
-            foreach (var item in await tasqR.RunAsync(cmd))
+            bool allAreTrue = true;
+            int callCount = 0;
+
+            var result = await tasqR.RunAsync(cmd);
+
+            foreach (var item in result)
             {
+                callCount++;
                 if (!item)
                 {
                     allAreTrue = false;
                 }
             }
 
+            Assert.AreEqual(initialCount, callCount);
             Assert.IsTrue(allAreTrue);
         }
 
