@@ -7,24 +7,19 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Common
 {
     public class TestServiceCollection : IDisposable
     {
-        private ServiceCollection services = null;
-        private ServiceProvider serviceProvider = null;
-
-        public TestServiceCollection()
-        {
-            services = new ServiceCollection();
-        }
+        private readonly ServiceCollection p_Services = new ServiceCollection();
+        private IServiceProvider serviceProvider = null;
 
         public void Register()
         {
-            services.AddTasqR(Assembly.GetExecutingAssembly());
+            p_Services.AddTasqR(Assembly.GetExecutingAssembly());
 
-            serviceProvider = services.BuildServiceProvider();
+            serviceProvider = p_Services.BuildServiceProvider();
         }
 
         public T GetService<T>()
         {
-            return serviceProvider.GetService<T>();
+            return serviceProvider.CreateScope().ServiceProvider.GetService<T>();
         }
 
         public void Dispose()
@@ -37,7 +32,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Common
         {
             if (disposing)
             {
-                serviceProvider.Dispose();
+                //serviceProvider.Dispose();
 
             }
         }

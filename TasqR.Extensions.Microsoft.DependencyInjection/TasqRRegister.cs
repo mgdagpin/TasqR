@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,45 +9,97 @@ namespace TasqR
 {
     public static class TasqRRegister
     {
-        static ITasqHandlerResolver s_TasqHandlerResolver = new MicrosoftDependencyTasqHandlerResolver();
+        static bool IsRegistered = false;
+        static List<Assembly> assemblyList = new List<Assembly>();
 
         public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
         {
-            services.AddScoped<ITasqR>(p =>
+            if (assemblies != null)
             {
-                ((MicrosoftDependencyTasqHandlerResolver)s_TasqHandlerResolver).SetServiceProvider(p);
+                foreach (var a in assemblies)
+                {
+                    if (!assemblyList.Contains(a))
+                    {
+                        assemblyList.Add(a);
+                    }
+                }
+            }
 
-                return new TasqRObject(s_TasqHandlerResolver);
-            });
+            TasqHandlerResolver resolver = new TasqHandlerResolver();
 
-            s_TasqHandlerResolver.RegisterFromAssembly(assemblies);
-
-            foreach (var ttHandler in s_TasqHandlerResolver.RegisteredReferences)
+            var h = resolver.RegisterFromAssembly(assemblyList.ToArray());
+            foreach (var ttHandler in h)
             {
                 services.AddTransient(ttHandler.HandlerImplementation);
             }
 
-            var allDerivedHandlers = s_TasqHandlerResolver.GetAllDerivedHandlers(assemblies);
-
-            foreach (var dh in allDerivedHandlers)
+            var dh = resolver.GetAllDerivedHandlers(assemblyList.ToArray());
+            foreach (var ttHandler in dh)
             {
-                services.AddTransient(dh);
+                services.AddTransient(ttHandler);
             }
+
+
+            if (!IsRegistered)
+            {
+                services.AddSingleton<TasqHandlerResolver>(p =>
+                {
+                    TasqHandlerResolver resolver2 = new TasqHandlerResolver();
+                    resolver2.RegisterFromAssembly(assemblyList.ToArray());
+
+                    return resolver2;
+                });
+
+                services.AddSingleton<ITasqHandlerResolver, MicrosoftDependencyTasqHandlerResolver>();
+
+                services.AddSingleton<ITasqR, TasqRObject>();
+
+                IsRegistered = true;
+            }                  
         }
     }
 
     public class MicrosoftDependencyTasqHandlerResolver : TasqHandlerResolver
     {
-        private IServiceProvider p_ServiceProvider;
+        private readonly IServiceProvider p_Provider;
+        private readonly TasqHandlerResolver p_Resolver;
 
-        public void SetServiceProvider(IServiceProvider serviceProvider)
+        public MicrosoftDependencyTasqHandlerResolver(IServiceProvider provider, TasqHandlerResolver resolver)
         {
-            p_ServiceProvider = serviceProvider;
+            p_Provider = provider;
+            p_Resolver = resolver;
+        }
+
+        public override TasqHandlerDetail ResolveHandler(Type type)
+        {
+            if (!p_Resolver.TasqHanders.ContainsKey(type))
+            {
+                throw new TasqException($"Type {GetFullName(type)} not registered");
+            }
+
+            var tasqHandlerType = p_Resolver.TasqHanders[type];
+
+            var tasqHandlerInstance = (ITasqHandler)GetService(tasqHandlerType);
+
+            if (tasqHandlerInstance == null)
+            {
+                throw new TasqException($"Type {GetFullName(tasqHandlerType.HandlerImplementation)} not registered");
+            }
+
+            return new TasqHandlerDetail
+            {
+                Handler = tasqHandlerInstance,
+                Reference = tasqHandlerType
+            };
         }
 
         public override object GetService(TypeTasqReference typeTasqReference)
         {
-            return p_ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
+            var a = p_Provider.CreateScope().ServiceProvider.GetService(typeTasqReference.HandlerImplementation);
+
+            //var s = p_Provider.GetService(typeTasqReference.HandlerImplementation);
+
+            return a;
         }
     }
 }

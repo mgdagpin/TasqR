@@ -1,3 +1,6 @@
+using System;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.TestProject.Microsoft.DependencyInjection.Common;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test1;
@@ -8,12 +11,25 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
     [TestClass]
     public class DITesting
     {
+        static ServiceCollection services = null;
+
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            if (services == null)
+            {
+                services = new ServiceCollection();
+                services.AddTasqR(Assembly.GetExecutingAssembly());
+            }
+        }
+
         [TestMethod]
         public void TasqR_Is_RegisteredAs_Singleton()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr1 = svc.GetService<ITasqR>();
                 var tasqr2 = svc.GetService<ITasqR>();
@@ -30,9 +46,10 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanDetectHandlersForCommandWithoutReturn()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
+
 
                 var tasqr = svc.GetService<ITasqR>();
 
@@ -46,9 +63,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanDetectHandlersForCommandWithReturn()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr = svc.GetService<ITasqR>();
 
@@ -61,9 +78,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanExecuteNestedProcessWithReturn()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr = svc.GetService<ITasqR>();
 
@@ -76,9 +93,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanRunWithMultiplePassedHandlerBase()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr = svc.GetService<ITasqR>();
 
@@ -91,9 +108,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanRunWithMultiplePassedHandlerInherit1()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr = svc.GetService<ITasqR>();
 
@@ -106,9 +123,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanRunWithMultiplePassedHandlerInherit2()
         {
-            using (var svc = new TestServiceCollection())
+            using (var scope = services.BuildServiceProvider().CreateScope())
             {
-                svc.Register();
+                IServiceProvider svc = scope.ServiceProvider;
 
                 var tasqr = svc.GetService<ITasqR>();
 
