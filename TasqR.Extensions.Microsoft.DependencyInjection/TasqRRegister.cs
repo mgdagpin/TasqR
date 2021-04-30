@@ -41,28 +41,20 @@ namespace TasqR
 
             var resolver = new TasqHandlerResolver();
 
-            var h = resolver.RegisterFromAssembly(assemblies);
-            foreach (var ttHandler in h)
+            var handlers = resolver.GetAllHandlers(assemblies);
+            foreach (var handler in handlers)
             {
-                services.AddTransient(ttHandler.HandlerImplementation);
-            }
-
-            var dh = resolver.GetAllDerivedHandlers(assemblies);
-            foreach (var ttHandler in dh)
-            {
-                services.AddTransient(ttHandler);
+                services.AddTransient(handler);
             }
 
             services.AddScoped<ITasqR>(p =>
             {
-                var hr = new MicrosoftDependencyTasqHandlerResolver(p);
+                var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
 
-                hr.RegisterFromAssembly(assemblyList.ToArray());
+                msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
 
-                var t = new TasqRObject(hr);
-
-                return t;
+                return new TasqRObject(msDIHandlerResolver);
             });
         }
-    }   
+    }
 }

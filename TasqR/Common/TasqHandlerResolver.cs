@@ -78,8 +78,20 @@ namespace TasqR.Common
             Register(TypeTasqReference.Resolve<THandler>());
         }
 
-        public virtual IEnumerable<TypeTasqReference> RegisterFromAssembly(params Assembly[] assemblies)
+        public virtual void RegisterFromAssembly(params Assembly[] assemblies)
         {
+            var handlers = GetAllHandlers(assemblies);
+
+            foreach (var handler in handlers)
+            {
+                Register(TypeTasqReference.Resolve(handler));
+            }
+        }
+
+        public IEnumerable<Type> GetAllHandlers(params Assembly[] assemblies)
+        {
+            List<Type> handlers = new List<Type>();
+
             var assembliesToScan = assemblies.Distinct().ToList();
 
             if (assembliesToScan.Count == 0)
@@ -89,39 +101,18 @@ namespace TasqR.Common
 
             foreach (var assembly in assembliesToScan)
             {
-                var ttHandlers = TypeTasqReference.GetAllTypeTasqReference(assembly);
+                var ttHandlers = assembly.DefinedTypes
+                    .Where(t => TypeTasqReference.IsConcrete(t) && TypeTasqReference.IsValidHandler(t))
+                    .Select(a => TypeTasqReference.Resolve(a))
+                    .ToList();
 
                 foreach (var ttHandler in ttHandlers)
                 {
-                    Register(ttHandler);
+                    handlers.Add(ttHandler.HandlerImplementation);
                 }
             }
 
-            return RegisteredReferences;
-        }
-
-        public IEnumerable<Type> GetAllDerivedHandlers(params Assembly[] assemblies)
-        {
-            List<Type> retVal = new List<Type>();
-            var assembliesToScan = assemblies.Distinct().ToList();
-
-            if (assembliesToScan.Count == 0)
-            {
-                assembliesToScan.Add(Assembly.GetExecutingAssembly());
-            }
-
-            foreach (var assembly in assembliesToScan)
-            {
-                assembly.DefinedTypes
-                    .Where(t => !t.IsDirectDerivedFromTasqHandler() && TypeTasqReference.IsValidHandler(t))
-                    .ToList()
-                    .ForEach(t =>
-                    {
-                        retVal.Add(t);
-                    });                
-            }
-
-            return retVal;
+            return handlers;
         }
     }
 }

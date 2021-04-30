@@ -50,7 +50,7 @@ namespace TasqR.Common
         public static IEnumerable<TypeTasqReference> GetAllTypeTasqReference(Assembly assembly)
         {
             return assembly.DefinedTypes
-                    .Where(t => t.IsDirectDerivedFromTasqHandler())
+                    .Where(t => t.IsDirectDerivedFromTasqHandler() && IsConcrete(t))
                     .Select(a => Resolve(a))
                     .ToList();
         }
@@ -60,7 +60,7 @@ namespace TasqR.Common
             return type.IsAssignableToTasqHandler() && IsConcrete(type);
         }
 
-        private static bool IsConcrete(Type type)
+        public static bool IsConcrete(Type type)
         {
             return !type.GetTypeInfo().IsAbstract && !type.GetTypeInfo().IsInterface;
         }

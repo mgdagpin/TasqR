@@ -6,6 +6,7 @@ using TasqR.TestProject.Microsoft.DependencyInjection.Common;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test1;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test2;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test3;
+using TasqR.TestProject.Microsoft.DependencyInjection.Test4;
 
 namespace TasqR.TestProject.Microsoft.DependencyInjection
 {
@@ -110,6 +111,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         }
 
         [TestMethod]
+
         public void CanRunWithMultiplePassedHandlerBase()
         {
             using (var scope = services.BuildServiceProvider().CreateScope())
@@ -120,7 +122,11 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
 
                 var cmd = new TestCommandWithMultipleHandler(5);
 
-                Assert.AreEqual(15, tasqr.Run(cmd));
+                var tHandler = tasqr.GetHandlerType(cmd);
+                var tResult = tasqr.Run(cmd);
+
+                Assert.AreEqual(typeof(TestCommandWithMultipleHandlerHandler3), tHandler);
+                Assert.AreEqual(35, tResult);
             }
         }
 
@@ -150,7 +156,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
 
                 var cmd = new TestCommandWithMultipleHandler(5);
 
-                Assert.AreEqual(25, tasqr.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler3)).Run(cmd));
+                Assert.AreEqual(35, tasqr.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler3)).Run(cmd));
             }
         }
 
@@ -206,6 +212,25 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
                 Assert.AreNotEqual(tasqR1.ID, tasqR2.ID);
                 Assert.AreNotEqual(trackMe1.ID, trackMe2.ID);
             }            
+        }
+
+        [TestMethod]
+        public void CanRunMultiBaseHandler()
+        {
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var scopeSvc = scope.ServiceProvider;
+
+                    var tasqR = scopeSvc.GetService<ITasqR>();
+
+                    var cmd = new MultiBaseCmd(10);
+                    tasqR.Run(cmd);
+
+                    Assert.AreEqual(11, cmd.Data);
+                }
+            }
         }
     }
 }

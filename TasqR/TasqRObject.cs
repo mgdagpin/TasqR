@@ -10,6 +10,7 @@ namespace TasqR
     public partial class TasqRObject : ITasqR
     {
         public Guid ID { get; private set; }
+
         public IEnumerable<TypeTasqReference> RegisteredReferences => p_TasqHandlerResolver.RegisteredReferences;
 
         public event LogEventHandler OnLog;
@@ -42,14 +43,9 @@ namespace TasqR
                 ITasq tasq
             )
         {
-            var tasqType = tasq.GetType();
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null 
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
+            var resolvedHandler = GetHandlerDetail(tasq);
 
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
@@ -98,15 +94,11 @@ namespace TasqR
             )
         {
             TResponse retVal;
-            var tasqType = tasq.GetType();
+            
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
-
+            var resolvedHandler = GetHandlerDetail(tasq);
+            
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
@@ -134,14 +126,9 @@ namespace TasqR
                 ITasq<TKey, TResponse> tasq
             )
         {
-            var tasqType = tasq.GetType();
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
+            var resolvedHandler = GetHandlerDetail(tasq);
 
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
@@ -173,7 +160,27 @@ namespace TasqR
 
 
             return retVal;
-        }     
+        }
         #endregion
+
+        public Type GetHandlerType(ITasq tasq)
+        {
+            var resolvedHandler = GetHandlerDetail(tasq);
+
+            return resolvedHandler.Reference.HandlerImplementation;
+        }
+
+        private TasqHandlerDetail GetHandlerDetail(ITasq tasq)
+        {
+            var tasqType = tasq.GetType();
+
+            var handlerDetail = ForcedHandlerDetail != null
+                ? ForcedHandlerDetail
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);
+
+            ForcedHandlerDetail = null;
+
+            return handlerDetail;
+        }
     }
 }

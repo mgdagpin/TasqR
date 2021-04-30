@@ -14,8 +14,8 @@ namespace TasqR
 
         TasqHandlerDetail ResolveHandler<TTasq>() where TTasq : ITasq;
         TasqHandlerDetail ResolveHandler(Type type);
-        IEnumerable<TypeTasqReference> RegisterFromAssembly(params Assembly[] assemblies);
-        IEnumerable<Type> GetAllDerivedHandlers(params Assembly[] assemblies);
+        void RegisterFromAssembly(params Assembly[] assemblies);
+        IEnumerable<Type> GetAllHandlers(params Assembly[] assemblies);
 
         object GetService(TypeTasqReference typeTasqReference);
     }

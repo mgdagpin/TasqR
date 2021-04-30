@@ -82,11 +82,11 @@ namespace TasqR.Common
                 return true;
             }
 
-            return false;
-            //var toType = typeof(ITasqHandler);
-
-            //return type.IsAssignableTo2(toType);
+            return IsAssignableToTasqHandler(type.BaseType);
         }
+
+
+
 
         /// See <see href=" https://stackoverflow.com/a/1533349" /> for reference
         internal static string GetReadableFullName(this Type t)

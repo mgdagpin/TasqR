@@ -33,7 +33,6 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Test2
         }
     }
 
-
     public class TestCommandWithMultipleHandlerHandler2 : TestCommandWithMultipleHandlerHandler
     {
         public override int Run(TestCommandWithMultipleHandler request)
@@ -44,6 +43,9 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Test2
 
     public class TestCommandWithMultipleHandlerHandler3 : TestCommandWithMultipleHandlerHandler2
     {
-        
+        public override int Run(TestCommandWithMultipleHandler request)
+        {
+            return request.StartNumber + 30;
+        }
     }
 }

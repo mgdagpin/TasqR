@@ -30,5 +30,6 @@ namespace TasqR
 
         Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default);
 
+        Type GetHandlerType(ITasq tasq);
     }
 }

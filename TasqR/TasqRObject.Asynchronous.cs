@@ -16,14 +16,9 @@ namespace TasqR
                 CancellationToken cancellationToken = default
             )
         {
-            var tasqType = tasq.GetType();
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
+            var resolvedHandler = GetHandlerDetail(tasq);
 
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
@@ -96,14 +91,9 @@ namespace TasqR
             )
         {
             Task<TResponse> retVal = null;
-            var tasqType = tasq.GetType();
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
+            var resolvedHandler = GetHandlerDetail(tasq);
 
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
@@ -156,14 +146,9 @@ namespace TasqR
             )
         {
             Task<IEnumerable<TResponse>> retVal = null;
-            var tasqType = tasq.GetType();
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
 
-            var resolvedHandler = ForcedHandlerDetail != null
-                ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            ForcedHandlerDetail = null;
+            var resolvedHandler = GetHandlerDetail(tasq);
 
             OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
