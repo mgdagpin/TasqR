@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.TestProject.Microsoft.DependencyInjection.Common;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test1;
 using TasqR.TestProject.Microsoft.DependencyInjection.Test2;
+using TasqR.TestProject.Microsoft.DependencyInjection.Test3;
 
 namespace TasqR.TestProject.Microsoft.DependencyInjection
 {
@@ -20,7 +21,25 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
             if (services == null)
             {
                 services = new ServiceCollection();
+
+                services.AddScoped(p => new TrackMeInScope
+                {
+                    ID = Guid.NewGuid()
+                });
+
+                services.AddTransient(p => new TrackMeInTransient
+                {
+                    ID = Guid.NewGuid()
+                });
+
+                services.AddSingleton(p => new TrackMeInSingleton
+                {
+                    ID = Guid.NewGuid()
+                });
+
                 services.AddTasqR(Assembly.GetExecutingAssembly());
+
+
             }
         }
 
@@ -133,6 +152,60 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
 
                 Assert.AreEqual(25, tasqr.UsingAsHandler(typeof(TestCommandWithMultipleHandlerHandler3)).Run(cmd));
             }
+        }
+
+        [TestMethod]
+        public void CanHaveSameTasqRAndSameObjectInScope()
+        {
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                ITasqR tasqR1 = null;
+                TrackMeInScope trackMe1 = null;
+
+                ITasqR tasqR2 = null;
+                TrackMeInScope trackMe2 = null;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var scopeSvc = scope.ServiceProvider;
+
+                    tasqR1 = scopeSvc.GetService<ITasqR>();
+                    trackMe1 = scopeSvc.GetService<TrackMeInScope>();
+
+                    var cmd = new DINestedCmd1();
+                    var res = tasqR1.Run(cmd);
+
+                    Assert.AreEqual(tasqR1.ID, res[$"{nameof(DINestedCmd1Handler)}_{nameof(DINestedCmd1Handler.p_TasqR)}"]);
+                    Assert.AreEqual(tasqR1.ID, res[$"{nameof(DINestedCmd2Handler)}_{nameof(DINestedCmd2Handler.p_TasqR)}"]);
+                    Assert.AreEqual(tasqR1.ID, res[$"{nameof(DINestedCmd3Handler)}_{nameof(DINestedCmd3Handler.p_TasqR)}"]);
+
+                    Assert.AreEqual(trackMe1.ID, res[$"{nameof(DINestedCmd1Handler)}_{nameof(DINestedCmd1Handler.p_TrackMe)}"]);
+                    Assert.AreEqual(trackMe1.ID, res[$"{nameof(DINestedCmd2Handler)}_{nameof(DINestedCmd2Handler.p_TrackMe)}"]);
+                    Assert.AreEqual(trackMe1.ID, res[$"{nameof(DINestedCmd3Handler)}_{nameof(DINestedCmd3Handler.p_TrackMe)}"]);
+                }
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var scopeSvc = scope.ServiceProvider;
+
+                    tasqR2 = scopeSvc.GetService<ITasqR>();
+                    trackMe2 = scopeSvc.GetService<TrackMeInScope>();
+
+                    var cmd = new DINestedCmd1();
+                    var res = tasqR2.Run(cmd);
+
+                    Assert.AreEqual(tasqR2.ID, res[$"{nameof(DINestedCmd1Handler)}_{nameof(DINestedCmd1Handler.p_TasqR)}"]);
+                    Assert.AreEqual(tasqR2.ID, res[$"{nameof(DINestedCmd2Handler)}_{nameof(DINestedCmd2Handler.p_TasqR)}"]);
+                    Assert.AreEqual(tasqR2.ID, res[$"{nameof(DINestedCmd3Handler)}_{nameof(DINestedCmd3Handler.p_TasqR)}"]);
+
+                    Assert.AreEqual(trackMe2.ID, res[$"{nameof(DINestedCmd1Handler)}_{nameof(DINestedCmd1Handler.p_TrackMe)}"]);
+                    Assert.AreEqual(trackMe2.ID, res[$"{nameof(DINestedCmd2Handler)}_{nameof(DINestedCmd2Handler.p_TrackMe)}"]);
+                    Assert.AreEqual(trackMe2.ID, res[$"{nameof(DINestedCmd3Handler)}_{nameof(DINestedCmd3Handler.p_TrackMe)}"]);
+                }
+
+                Assert.AreNotEqual(tasqR1.ID, tasqR2.ID);
+                Assert.AreNotEqual(trackMe1.ID, trackMe2.ID);
+            }            
         }
     }
 }
