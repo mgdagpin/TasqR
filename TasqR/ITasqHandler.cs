@@ -26,20 +26,20 @@ namespace TasqR
     public interface ITasqHandler<TTasq, out TResponse> : ITasqHandler
         where TTasq : ITasq<TResponse>
     {
-        TResponse Initialize(TTasq request);
-        TResponse BeforeRun(TTasq request);
+        void Initialize(TTasq request);
+        void BeforeRun(TTasq request);
         TResponse Run(TTasq request);
-        TResponse AfterRun(TTasq request);
+        void AfterRun(TTasq request);
     }
 
     public interface ITasqHandler<in TTasq, TKey, TResponse> : ITasqHandler
         where TTasq : ITasq<TKey, TResponse>
     {
+        void Initialize(TTasq request);
         IEnumerable SelectionCriteria(TTasq request);
-        TResponse Initialize(TTasq request);
-        TResponse BeforeRun(TTasq request);
+        void BeforeRun(TTasq request);
         TResponse Run(TKey key, TTasq request);
-        TResponse AfterRun(TTasq request);
+        void AfterRun(TTasq request);
     }
 
     public interface ITasqHandlerAsync<in TTasq, TKey, TResponse> : ITasqHandler
