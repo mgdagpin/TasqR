@@ -7,7 +7,7 @@ using TasqR.Common;
 
 namespace TasqR
 {
-    public partial class TasqRObject : ITasqR
+    public partial class TasqR : ITasqR
     {
         public Guid ID { get; private set; }
 
@@ -18,27 +18,27 @@ namespace TasqR
         private readonly ITasqHandlerResolver p_TasqHandlerResolver;
         internal TasqHandlerDetail ForcedHandlerDetail;
 
-        public TasqRObject(ITasqHandlerResolver tasqHandlerResolver)
+        public TasqR(ITasqHandlerResolver tasqHandlerResolver)
         {
             p_TasqHandlerResolver = tasqHandlerResolver;
             ID = Guid.NewGuid();
         }
 
-        public ITasqR UsingAsHandler(Type type)
+        public virtual ITasqR UsingAsHandler(Type type)
         {
             ForcedHandlerDetail = TasqHandlerDetail.TryGetFromType(type, p_TasqHandlerResolver);
 
             return this;
         }
 
-        public ITasqR UsingAsHandler<THandler>() where THandler : ITasqHandler
+        public virtual ITasqR UsingAsHandler<THandler>() where THandler : ITasqHandler
         {
             return UsingAsHandler(typeof(THandler));
         }
 
 
         #region Run (No return)
-        public void Run
+        public virtual void Run
             (
                 ITasq tasq
             )
@@ -88,7 +88,7 @@ namespace TasqR
         #endregion
 
         #region Run (with return)
-        public TResponse Run<TResponse>
+        public virtual TResponse Run<TResponse>
             (
                 ITasq<TResponse> tasq
             )
@@ -121,7 +121,7 @@ namespace TasqR
         #endregion
 
         #region Run (with key)
-        public IEnumerable<TResponse> Run<TKey, TResponse>
+        public virtual IEnumerable<TResponse> Run<TKey, TResponse>
             (
                 ITasq<TKey, TResponse> tasq
             )
@@ -163,7 +163,7 @@ namespace TasqR
         }
         #endregion
 
-        public Type GetHandlerType(ITasq tasq)
+        public virtual Type GetHandlerType(ITasq tasq)
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 

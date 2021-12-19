@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
     <Authors>Vincent Dagpin, Marcelius Dagpin</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageIcon>TasqR.png</PackageIcon>
     <Copyright>Copyright (c) 2021</Copyright>
-    <Version>1.4.19</Version>
+    <Version>1.4.20</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
     <RepositoryUrl>https://github.com/mgdagpin/TasqR</RepositoryUrl>
     <PackageProjectUrl>https://github.com/mgdagpin/TasqR</PackageProjectUrl>

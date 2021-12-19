@@ -53,7 +53,7 @@ namespace TasqR
 
                 msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
 
-                return new TasqRObject(msDIHandlerResolver);
+                return new TasqR(msDIHandlerResolver);
             });
         }
     }

@@ -16,7 +16,7 @@ namespace TasqR.TestProject
             {
                 var handlerResolver = new TasqHandlerResolver();
 
-                var tasqR = new TasqRObject(handlerResolver);
+                var tasqR = new TasqR(handlerResolver);
                 var cmd = new CommandWithKey();
 
                 tasqR.Run(cmd);

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace TasqR
 {
-    public partial class TasqRObject
+    public partial class TasqR
     {
         #region Run (No return)
-        public Task RunAsync
+        public virtual Task RunAsync
             (
                 ITasq tasq,
                 CancellationToken cancellationToken = default
@@ -84,7 +84,7 @@ namespace TasqR
         #endregion
 
         #region Run (with return)
-        public Task<TResponse> RunAsync<TResponse>
+        public virtual Task<TResponse> RunAsync<TResponse>
             (
                 ITasq<TResponse> tasq,
                 CancellationToken cancellationToken = default
@@ -139,7 +139,7 @@ namespace TasqR
         #endregion
 
         #region Run (with key)
-        public Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>
+        public virtual Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>
             (
                 ITasq<TKey, TResponse> tasq,
                 CancellationToken cancellationToken = default

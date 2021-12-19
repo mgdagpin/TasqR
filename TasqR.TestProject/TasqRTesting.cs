@@ -23,7 +23,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<SampleCommandWithoutReturnHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new SampleCommandWithoutReturn(testModel);
 
             tasqR.Run(cmd);
@@ -39,7 +39,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<CommandWithAsyncWithoutReturnHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new CommandWithAsyncWithoutReturn(testModel);
 
             tasqR.Run(cmd);
@@ -55,7 +55,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<SampleCommandWithReturnHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new SampleCommandWithReturn(startNumber);
 
             int finalNumber = tasqR.Run(cmd);
@@ -71,7 +71,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<TestCmdWithReturnForAsyncHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new TestCmdWithReturnForAsync(startNumber);
 
             int finalNumber = tasqR.Run(cmd);
@@ -87,7 +87,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<CommandWithKeyHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new CommandWithKey();
 
             tasqR.Run(cmd);
@@ -102,7 +102,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<CommandWithKeyAsyncHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var cmd = new CommandWithKeyAsync();
 
             bool allAreTrue = true;
@@ -125,7 +125,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<CommandWithKeyAsyncHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
 
 
@@ -141,7 +141,7 @@ namespace TasqR.TestProject
 
             handlerResolver.Register<CommandWithKeyHandler>();
 
-            var tasqR = new TasqRObject(handlerResolver);
+            var tasqR = new TasqR(handlerResolver);
             var instance = Activator.CreateInstance(typeof(CommandWithKey));
 
             tasqR.Run((ITasq<int, bool>)instance);
@@ -168,7 +168,7 @@ namespace TasqR.TestProject
                 var handlerResolver = new TasqHandlerResolver();
 
                 handlerResolver.Register<CmdHandlerWithNoParamlessCtorHandler>();
-                var tasqR = new TasqRObject(handlerResolver);
+                var tasqR = new TasqR(handlerResolver);
 
                 var cmd = new CmdHandlerWithNoParamlessCtor();
                 tasqR.Run(cmd);
@@ -190,7 +190,7 @@ namespace TasqR.TestProject
                 var handlerResolver = new TasqHandlerResolver();
 
                 handlerResolver.Register<TestWithErrorCmdHandler>();
-                var tasqR = new TasqRObject(handlerResolver);
+                var tasqR = new TasqR(handlerResolver);
 
                 var cmd = new TestWithErrorCmd();
                 await tasqR.RunAsync(cmd);
