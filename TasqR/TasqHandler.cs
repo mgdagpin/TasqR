@@ -12,7 +12,7 @@ namespace TasqR
         internal virtual void Initialize(object request) => throw new NotImplementedException();
         internal virtual IEnumerable SelectionCriteria(object request) => throw new NotImplementedException();
         internal virtual void BeforeRun(object request) => throw new NotImplementedException();
-        internal virtual object Run(object key, object request) => throw new NotImplementedException();
+        internal virtual object XRun(object key, object request) => throw new NotImplementedException();
         internal virtual void AfterRun(object request) => throw new NotImplementedException();
     }
 
@@ -22,7 +22,7 @@ namespace TasqR
         #region TasqHandler Calls
         internal override void Initialize(object request) => Initialize((TProcess)request);
         internal override void BeforeRun(object request) => BeforeRun((TProcess)request);
-        internal override object Run(object key, object request)
+        internal override object XRun(object key, object request)
         {
             Run((TProcess)request);
 
@@ -48,14 +48,14 @@ namespace TasqR
         #region TasqHandler Calls
         internal override void Initialize(object request) => Initialize((TProcess)request);
         internal override void BeforeRun(object request) => BeforeRun((TProcess)request);
-        internal override object Run(object key, object request) => Run((TProcess)request);
+        internal override object XRun(object key, object request) => Run((TProcess)request);
         internal override void AfterRun(object request) => AfterRun((TProcess)request);
         #endregion
 
         public virtual void Initialize(TProcess request) { }
-        public virtual void AfterRun(TProcess request) { }
-        public abstract TResponse Run(TProcess request);
         public virtual void BeforeRun(TProcess request) { }
+        public abstract TResponse Run(TProcess request);
+        public virtual void AfterRun(TProcess request) { }
     }
 
     public abstract class TasqHandler<TProcess, TKey, TResponse> : TasqHandler, ITasqHandler<TProcess, TKey, TResponse>
@@ -65,7 +65,7 @@ namespace TasqR
         internal override void Initialize(object request) => Initialize((TProcess)request);
         internal override IEnumerable SelectionCriteria(object request) => SelectionCriteria((TProcess)request);
         internal override void BeforeRun(object request) => BeforeRun((TProcess)request);
-        internal override object Run(object key, object request)
+        internal override object XRun(object key, object request)
         {
             TKey k = default;
 

@@ -34,7 +34,7 @@ namespace TasqR
         public virtual Task AfterRunAsync(TProcess request, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 
-    public abstract class TasqHandlerAsync<TProcess, TResponse> : TasqHandlerAsync
+    public abstract class TasqHandlerAsync<TProcess, TResponse> : TasqHandlerAsync, ITasqHandlerAsync<TProcess, TResponse>
         where TProcess : ITasq<TResponse>
     {
         #region TasqHandler Calls

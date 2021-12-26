@@ -80,7 +80,7 @@ namespace TasqR
                 {
                     tasqHandlerInstance.Initialize(tasq);
                     tasqHandlerInstance.BeforeRun(tasq);
-                    tasqHandlerInstance.Run(null, tasq);
+                    tasqHandlerInstance.XRun(null, tasq);
                     tasqHandlerInstance.AfterRun(tasq);
                 }
             }
@@ -112,7 +112,7 @@ namespace TasqR
 
                 tasqHandlerInstance.Initialize(tasq);
                 tasqHandlerInstance.BeforeRun(tasq);
-                retVal = (TResponse)tasqHandlerInstance.Run(null, tasq);
+                retVal = (TResponse)tasqHandlerInstance.XRun(null, tasq);
                 tasqHandlerInstance.AfterRun(tasq);
             }
 
@@ -150,7 +150,7 @@ namespace TasqR
             {
                 foreach (var eachSelection in selectionCriteria)
                 {
-                    var result = (TResponse)tasqHandlerInstance.Run(eachSelection, tasq);
+                    var result = (TResponse)tasqHandlerInstance.XRun(eachSelection, tasq);
 
                     retVal.Add(result);
                 }
