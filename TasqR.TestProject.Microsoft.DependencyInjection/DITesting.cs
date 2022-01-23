@@ -38,7 +38,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
                     ID = Guid.NewGuid()
                 });
 
-                services.AddTasqR(Assembly.GetExecutingAssembly());
+                services.AddTasqR(ServiceLifetime.Scoped, Assembly.GetExecutingAssembly());
 
 
             }

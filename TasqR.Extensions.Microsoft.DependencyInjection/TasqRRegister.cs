@@ -26,7 +26,7 @@ namespace TasqR
     {
         static List<Assembly> assemblyList = new List<Assembly>();
 
-        public static void AddTasqR(this IServiceCollection services, params Assembly[] assemblies)
+        public static void AddTasqR(this IServiceCollection services, ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped, params Assembly[] assemblies)
         {
             if (assemblies != null)
             {
@@ -47,14 +47,28 @@ namespace TasqR
                 services.AddTransient(handler);
             }
 
-            services.AddScoped<ITasqR>(p =>
+            if (tasqRServiceLifeTime == ServiceLifetime.Scoped)
             {
-                var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
+                services.AddScoped<ITasqR>(p =>
+                {
+                    var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
 
-                msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
+                    msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
 
-                return new TasqR(msDIHandlerResolver);
-            });
+                    return new TasqR(msDIHandlerResolver);
+                });
+            }
+            else if (tasqRServiceLifeTime == ServiceLifetime.Transient)
+            {
+                services.AddTransient<ITasqR>(p =>
+                {
+                    var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
+
+                    msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
+
+                    return new TasqR(msDIHandlerResolver);
+                });
+            }            
         }
     }
 }

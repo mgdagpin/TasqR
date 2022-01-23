@@ -12,7 +12,7 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection.Common
 
         public void Register()
         {
-            p_Services.AddTasqR(Assembly.GetExecutingAssembly());
+            p_Services.AddTasqR(ServiceLifetime.Scoped, Assembly.GetExecutingAssembly());
 
             serviceProvider = p_Services.BuildServiceProvider();
         }

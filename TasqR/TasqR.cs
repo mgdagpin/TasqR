@@ -15,6 +15,7 @@ namespace TasqR
 
         public event LogEventHandler OnLog;
 
+        private bool autoClearReference;
         private readonly ITasqHandlerResolver p_TasqHandlerResolver;
         internal TasqHandlerDetail ForcedHandlerDetail;
 
@@ -24,16 +25,17 @@ namespace TasqR
             ID = Guid.NewGuid();
         }
 
-        public virtual ITasqR UsingAsHandler(Type type)
+        public virtual ITasqR UsingAsHandler(Type type, bool autoClearReference = false)
         {
+            this.autoClearReference = autoClearReference;
             ForcedHandlerDetail = TasqHandlerDetail.TryGetFromType(type, p_TasqHandlerResolver);
 
             return this;
         }
 
-        public virtual ITasqR UsingAsHandler<THandler>() where THandler : ITasqHandler
+        public virtual ITasqR UsingAsHandler<THandler>(bool autoClearReference = false) where THandler : ITasqHandler
         {
-            return UsingAsHandler(typeof(THandler));
+            return UsingAsHandler(typeof(THandler), autoClearReference);
         }
 
 
@@ -178,7 +180,10 @@ namespace TasqR
                 ? ForcedHandlerDetail
                 : p_TasqHandlerResolver.ResolveHandler(tasqType);
 
-            ForcedHandlerDetail = null;
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
 
             return handlerDetail;
         }
