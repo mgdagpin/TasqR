@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using TasqR.Common;
@@ -186,6 +187,14 @@ namespace TasqR
             }
 
             return handlerDetail;
+        }
+
+        public virtual ITasqR UsingAsHandler(string taskAssembly, string taskClass, bool autoClearReference = false)
+        {
+            var assembly = Assembly.LoadFrom(taskAssembly);
+            var type = assembly.GetType(taskClass);
+            
+            return UsingAsHandler(type, autoClearReference);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace TasqR
 
         IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
+        ITasqR UsingAsHandler(string taskAssembly, string taskClass, bool autoClearReference = false);
         ITasqR UsingAsHandler(Type type, bool autoClearReference = false);
         ITasqR UsingAsHandler<THandler>(bool autoClearReference = true) where THandler : ITasqHandler;
 
