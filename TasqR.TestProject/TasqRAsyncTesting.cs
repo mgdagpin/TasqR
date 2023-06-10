@@ -27,9 +27,7 @@ namespace TasqR.TestProject
             bool allAreTrue = true;
             int callCount = 0;
 
-            var result = await tasqR.RunAsync(cmd);
-
-            foreach (var item in result)
+            await foreach (var item in tasqR.RunAsync(cmd))
             {
                 callCount++;
                 if (!item)
@@ -54,7 +52,7 @@ namespace TasqR.TestProject
 
             bool allAreTrue = true;
 
-            foreach (var item in await tasqR.RunAsync(instance))
+            await foreach (var item in tasqR.RunAsync(instance))
             {
                 if (!item)
                 {

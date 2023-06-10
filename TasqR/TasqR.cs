@@ -14,8 +14,6 @@ namespace TasqR
 
         public IEnumerable<TypeTasqReference> RegisteredReferences => p_TasqHandlerResolver.RegisteredReferences;
 
-        public event LogEventHandler OnLog;
-
         private bool autoClearReference;
         private readonly ITasqHandlerResolver p_TasqHandlerResolver;
         internal TasqHandlerDetail ForcedHandlerDetail;
@@ -41,20 +39,13 @@ namespace TasqR
 
 
         #region Run (No return)
-        public virtual void Run
-            (
-                ITasq tasq
-            )
+        public virtual void Run(ITasq tasq)
         {
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
-
             var resolvedHandler = GetHandlerDetail(tasq);
-
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
-                RunAsync(tasq).Wait();
+                RunAsync(tasq).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             else
             {
@@ -91,78 +82,70 @@ namespace TasqR
         #endregion
 
         #region Run (with return)
-        public virtual TResponse Run<TResponse>
-            (
-                ITasq<TResponse> tasq
-            )
+        public virtual TResponse Run<TResponse>(ITasq<TResponse> tasq)
         {
-            TResponse retVal;
-            
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
-
             var resolvedHandler = GetHandlerDetail(tasq);
-            
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
-                retVal = RunAsync(tasq).Result;
+                return RunAsync(tasq).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             else
             {
                 TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-
                 tasqHandlerInstance.Initialize(tasq);
                 tasqHandlerInstance.BeforeRun(tasq);
-                retVal = (TResponse)tasqHandlerInstance.XRun(null, tasq);
+                var retVal = (TResponse)tasqHandlerInstance.XRun(null, tasq);
                 tasqHandlerInstance.AfterRun(tasq);
-            }
 
-            return retVal;
+                return retVal;
+            }
         }
         #endregion
 
-        #region Run (with key)
-        public virtual IEnumerable<TResponse> Run<TKey, TResponse>
-            (
-                ITasq<TKey, TResponse> tasq
-            )
+        protected async Task<List<TResponse>> ToListAsync<TResponse>(IAsyncEnumerable<TResponse> temp1)
         {
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
+            var result = new List<TResponse>();
 
+            await foreach (var item in temp1)
+            {
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        #region Run (with key)
+        public virtual IEnumerable<TResponse> Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
+        {
             var resolvedHandler = GetHandlerDetail(tasq);
-
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
-                return RunAsync(tasq).Result;
-            }
-
-            TasqHandler tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
-
-            List<TResponse> retVal = new List<TResponse>();
-
-            tasqHandlerInstance.Initialize(tasq);
-            tasqHandlerInstance.BeforeRun(tasq);
-
-            var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
-
-            if (selectionCriteria != null)
-            {
-                foreach (var eachSelection in selectionCriteria)
+                foreach (var item in ToListAsync(RunAsync(tasq)).Result)
                 {
-                    var result = (TResponse)tasqHandlerInstance.XRun(eachSelection, tasq);
-
-                    retVal.Add(result);
+                    yield return item;
                 }
             }
+            else
+            {
+                var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
 
-            tasqHandlerInstance.AfterRun(tasq);
+                tasqHandlerInstance.Initialize(tasq);
 
+                var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
 
-            return retVal;
+                if (selectionCriteria != null)
+                {
+                    foreach (var eachSelection in selectionCriteria)
+                    {
+                        tasqHandlerInstance.BeforeRun(tasq);
+                        yield return (TResponse)tasqHandlerInstance.XRun(eachSelection, tasq);
+                        tasqHandlerInstance.AfterRun(tasq);
+                    }
+                }
+            }            
         }
         #endregion
 
@@ -195,6 +178,6 @@ namespace TasqR
             var type = assembly.GetType(taskClass);
             
             return UsingAsHandler(type, autoClearReference);
-        }
+        }        
     }
 }

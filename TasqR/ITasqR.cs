@@ -10,8 +10,6 @@ namespace TasqR
     {
         Guid ID { get; }
 
-        event LogEventHandler OnLog;
-
         IEnumerable<TypeTasqReference> RegisteredReferences { get; }
 
         ITasqR UsingAsHandler(string taskAssembly, string taskClass, bool autoClearReference = false);
@@ -29,7 +27,7 @@ namespace TasqR
 
         Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default);
 
         Type GetHandlerType(ITasq tasq);
     }

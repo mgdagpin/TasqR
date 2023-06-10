@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,37 +10,22 @@ namespace TasqR
     public partial class TasqR
     {
         #region Run (No return)
-        public virtual Task RunAsync
-            (
-                ITasq tasq,
-                CancellationToken cancellationToken = default
-            )
+        public virtual async Task RunAsync(ITasq tasq, CancellationToken cancellationToken = default)
         {
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
-
             var resolvedHandler = GetHandlerDetail(tasq);
 
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
-
+            // if the tasq is iteration with key
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
             {
-                var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
-                var argT2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
+                throw new TasqException("Tasq passed is with a key type (ITasq<,>) but being used as ITasq");
+                //var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
+                //var argT2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
 
-                var method = this.GetType().GetMethods().Single(a => a.Name == nameof(RunAsync) && a.GetGenericArguments().Length == 2);
+                //var method = this.GetType().GetMethods().Single(a => a.Name == nameof(RunAsync) && a.GetGenericArguments().Length == 2);
+                //var methodInfo = method.MakeGenericMethod(argT1, argT2);
 
-                return
-                    ((Task)method.MakeGenericMethod(argT1, argT2)
-                    .Invoke(this, parameters: new object[] { tasq, cancellationToken })
-                    )
-                    .ContinueWith(a =>
-                    {
-                        if (a.IsFaulted)
-                        {
-                            throw a.Exception;
-                        }
-                    });
+                //methodInfo.Invoke(this, parameters: new object[] { tasq, cancellationToken });
             }
             else if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 2)
@@ -49,166 +34,160 @@ namespace TasqR
 
                 var method = this.GetType().GetMethods().Single(a => a.Name == nameof(RunAsync) && a.GetGenericArguments().Length == 1);
 
-                return (Task)method.MakeGenericMethod(argT1).Invoke(this, parameters: new object[] { tasq, cancellationToken });
+                await (Task)method.MakeGenericMethod(argT1).Invoke(this, parameters: new object[] { tasq, cancellationToken });
             }
+            else
+            {
+                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-            var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+                tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
-
-            return tasqHandlerInstance.InitializeAsync(tasq)
-                .ContinueWith(res1 =>
-                {
-                    if (res1.IsFaulted) throw new TasqException(res1.Exception);
-
-                    return tasqHandlerInstance.BeforeRunAsync(tasq)
-                        .ContinueWith(res2 =>
-                        {
-                            if (res2.IsFaulted) throw new TasqException(res2.Exception);
-
-                            return tasqHandlerInstance.XRunAsync(null, tasq)
-                                .ContinueWith(res3 =>
-                                {
-                                    if (res3.IsFaulted) throw new TasqException(res3.Exception);
-
-                                    return tasqHandlerInstance.AfterRunAsync(tasq)
-                                        .ContinueWith(res4 =>
-                                        {
-                                            if (res4.IsFaulted) throw new TasqException(res4.Exception);
-
-                                            return res3;
-                                        }).Unwrap();
-                                }).Unwrap();
-                        }).Unwrap();
-                }).Unwrap();
+                await tasqHandlerInstance.InitializeAsync(tasq);
+                await tasqHandlerInstance.BeforeRunAsync(tasq);
+                await tasqHandlerInstance.XRunAsync(null, tasq);
+                await tasqHandlerInstance.AfterRunAsync(tasq);
+            }            
         }
         #endregion
 
         #region Run (with return)
-        public virtual Task<TResponse> RunAsync<TResponse>
-            (
-                ITasq<TResponse> tasq,
-                CancellationToken cancellationToken = default
-            )
+        public virtual async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
         {
-            Task<TResponse> retVal = null;
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
-
             var resolvedHandler = GetHandlerDetail(tasq);
-
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {
-                retVal = Task.FromResult(Run(tasq));
+                return Run(tasq);
             }
             else
             {
-                TasqHandlerAsync tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
                 tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
-                retVal = tasqHandlerInstance.InitializeAsync(tasq)
-                    .ContinueWith(res1 =>
-                    {
-                        if (res1.IsFaulted) throw new TasqException(res1.Exception);
+                await tasqHandlerInstance.InitializeAsync(tasq);
+                await tasqHandlerInstance.BeforeRunAsync(tasq);
+                var runTask = tasqHandlerInstance.XRunAsync(null, tasq);
+                await runTask;
 
-                        return tasqHandlerInstance.BeforeRunAsync(tasq)
-                            .ContinueWith(res2 =>
-                            {
-                                if (res2.IsFaulted) throw new TasqException(res2.Exception);
+                await tasqHandlerInstance.AfterRunAsync(tasq);
 
-                                return tasqHandlerInstance.XRunAsync(null, tasq)
-                                    .ContinueWith(res3 =>
-                                    {
-                                        if (res3.IsFaulted) throw new TasqException(res3.Exception);
-
-                                        return tasqHandlerInstance.AfterRunAsync(tasq)
-                                            .ContinueWith(res4 =>
-                                            {
-                                                if (res4.IsFaulted) throw new TasqException(res4.Exception);
-
-                                                return (Task<TResponse>)res3;
-                                            }).Unwrap();
-                                    }).Unwrap();
-                            }).Unwrap();
-                    }).Unwrap();
+                return GetTaskResult<TResponse>(runTask);
             }
-
-            return retVal;
         }
         #endregion
 
         #region Run (with key)
-        public virtual Task<IEnumerable<TResponse>> RunAsync<TKey, TResponse>
-            (
-                ITasq<TKey, TResponse> tasq,
-                CancellationToken cancellationToken = default
-            )
+        public virtual async IAsyncEnumerable<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
         {
-            Task<IEnumerable<TResponse>> retVal = null;
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(tasq));
-
             var resolvedHandler = GetHandlerDetail(tasq);
-
-            OnLog?.Invoke(this, TasqProcess.Start, new LogEventHandlerEventArgs(resolvedHandler.Handler));
 
             if (resolvedHandler.Handler is TasqHandler)
             {
-                retVal = Task.FromResult(Run(tasq));
+                foreach (var item in Run(tasq))
+                {
+                    yield return item;
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                }
             }
             else
             {
-                TasqHandlerAsync tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-                retVal = tasqHandlerInstance.InitializeAsync(tasq)
-                    .ContinueWith(async res1 =>
+                tasqHandlerInstance.p_CancellationToken = cancellationToken;
+
+                await tasqHandlerInstance.InitializeAsync(tasq);
+                var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
+
+                foreach (var item in selectionCriteria)
+                {
+                    await tasqHandlerInstance.BeforeRunAsync(tasq);
+                    var runTask = tasqHandlerInstance.XRunAsync(item, tasq);
+
+                    await runTask;
+
+                    await tasqHandlerInstance.AfterRunAsync(tasq);
+
+                    yield return GetTaskResult<TResponse>(runTask);
+
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        if (res1.IsFaulted) throw new TasqException(res1.Exception);
+                        break;
+                    }
+                }
+            }
+        }
 
-                        List<TResponse> abRet = new List<TResponse>();
+        //public virtual async IAsyncEnumerator<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+        //{
+        //    var resolvedHandler = GetHandlerDetail(tasq);
 
-                        var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
+        //    if (resolvedHandler.Handler is TasqHandler)
+        //    {
+        //        foreach (var item in Run(tasq))
+        //        {
+        //            yield return item;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-                        List<Task<TResponse>> listOfTask = new List<Task<TResponse>>();
+        //        tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
-                        foreach (var item in selectionCriteria)
-                        {
-                            var task = tasqHandlerInstance.BeforeRunAsync(tasq)
-                                     .ContinueWith(res2 =>
-                                     {
-                                         if (res2.IsFaulted) throw new TasqException(res2.Exception);
+        //        await tasqHandlerInstance.InitializeAsync(tasq);
+        //        var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
 
-                                         return tasqHandlerInstance.XRunAsync(item, tasq)
-                                             .ContinueWith(res3 =>
-                                             {
-                                                 if (res3.IsFaulted) throw new TasqException(res3.Exception);
+        //        foreach (var item in selectionCriteria)
+        //        {
+        //            if (cancellationToken.IsCancellationRequested)
+        //            {
+        //                break;
+        //            }
 
-                                                 return tasqHandlerInstance.AfterRunAsync(tasq)
-                                                     .ContinueWith(res5 =>
-                                                     {
-                                                         if (res5.IsFaulted) throw new TasqException(res5.Exception);
+        //            await tasqHandlerInstance.BeforeRunAsync(tasq);
+        //            var runTask = tasqHandlerInstance.XRunAsync(item, tasq);
 
-                                                         var tasR3 = (Task<TResponse>)res3;
+        //            await runTask;
 
-                                                         abRet.Add(tasR3.Result);
+        //            await tasqHandlerInstance.AfterRunAsync(tasq);
 
-                                                         return tasR3;
-                                                     }).Unwrap();
-                                             }, TaskContinuationOptions.AttachedToParent).Unwrap();
-                                     }, TaskContinuationOptions.AttachedToParent).Unwrap();
+        //            yield return GetTaskResult<TResponse>(runTask);
+        //        }
+        //    }
+        //}
+        #endregion
 
-                            listOfTask.Add(task);
-                        }
+        protected TTaskResult GetTaskResult<TTaskResult>(Task task)
+        {
+            var taskType = task.GetType().GetMember("Result");
 
-                        var allResult = await Task.WhenAll(listOfTask);
+            if (taskType != null && taskType.Length > 0)
+            {
+                var first = taskType[0];
+                var result = GetValue(first, task);
 
-                        return allResult.AsEnumerable();
-
-                    }).Unwrap();
+                return (TTaskResult)result;
             }
 
-            return retVal;
+            return default;
         }
-        #endregion
+
+        protected object GetValue(MemberInfo memberInfo, object forObject)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)memberInfo).GetValue(forObject);
+                case MemberTypes.Property:
+                    return ((PropertyInfo)memberInfo).GetValue(forObject);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 }

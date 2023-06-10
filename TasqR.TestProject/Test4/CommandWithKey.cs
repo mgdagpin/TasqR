@@ -27,9 +27,7 @@ namespace TasqR.TestProject.Test4
 
         public override IEnumerable<int> SelectionCriteria(CommandWithKey tasq)
         {
-            int[] keys = new[] { 1, 2, 3 };
-
-            return keys;
+            return new[] { 1, 2, 3 };
         }
     }
 }

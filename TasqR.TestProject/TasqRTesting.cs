@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
@@ -90,7 +92,7 @@ namespace TasqR.TestProject
             var tasqR = new TasqR(handlerResolver);
             var cmd = new CommandWithKey();
 
-            tasqR.Run(cmd);
+            _ = tasqR.Run(cmd).ToList();
 
             Assert.IsTrue(cmd.AllAreCorrect);
         }
@@ -126,12 +128,33 @@ namespace TasqR.TestProject
             handlerResolver.Register<CommandWithKeyAsyncHandler>();
 
             var tasqR = new TasqR(handlerResolver);
+            var instance = (ITasq<int, bool>)Activator.CreateInstance(typeof(CommandWithKeyAsync));
+
+
+            _ = tasqR.Run(instance).ToList();
+
+            var temp = instance as CommandWithKeyAsync;
+
+            Assert.IsTrue(temp.Keys.Count == 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(TasqException))]
+        public void CanRunWithKeyForAsyncHandlerBaseTypeErr()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithKeyAsyncHandler>();
+
+            var tasqR = new TasqR(handlerResolver);
             var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
 
 
             tasqR.Run(instance);
 
-            Assert.IsTrue(true);
+            var temp = instance as CommandWithKeyAsync;
+
+            Assert.IsTrue(temp.Keys.Count == 0);
         }
 
         [TestMethod]
@@ -144,7 +167,7 @@ namespace TasqR.TestProject
             var tasqR = new TasqR(handlerResolver);
             var instance = Activator.CreateInstance(typeof(CommandWithKey));
 
-            tasqR.Run((ITasq<int, bool>)instance);
+            _ = tasqR.Run((ITasq<int, bool>)instance).ToList();
 
             Assert.IsTrue(((CommandWithKey)instance).AllAreCorrect);
         }
@@ -193,7 +216,13 @@ namespace TasqR.TestProject
                 var tasqR = new TasqR(handlerResolver);
 
                 var cmd = new TestWithErrorCmd();
-                await tasqR.RunAsync(cmd);
+
+                var result = new List<bool>();
+
+                await foreach (var item in tasqR.RunAsync(cmd))
+                {
+                    result.Add(item);
+                }
             }
             catch (AggregateException ex)
             {

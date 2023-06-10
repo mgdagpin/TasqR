@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
 using TasqR.TestProject.Test4;
@@ -19,7 +20,7 @@ namespace TasqR.TestProject
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new CommandWithKey();
 
-                tasqR.Run(cmd);
+                _ = tasqR.Run(cmd).ToList();
 
             }
             catch (Exception ex)
