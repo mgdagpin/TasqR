@@ -4,8 +4,8 @@
 		<Authors>Vincent Dagpin, Marcelius Dagpin</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Copyright>Copyright (c) 2021</Copyright>
-		<Version>1.4.23</Version>
+		<Copyright>Copyright (c) 2023</Copyright>
+		<Version>1.4.3</Version>
 		<PackageIcon>TasqR.png</PackageIcon>
 		<RootNamespace>TasqR</RootNamespace>
 	</PropertyGroup>
