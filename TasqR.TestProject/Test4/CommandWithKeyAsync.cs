@@ -8,7 +8,12 @@ namespace TasqR.TestProject.Test4
 {
     public class CommandWithKeyAsync : ITasq<int, bool>
     {
-        public List<int> Keys { get; set; } = Enumerable.Range(1, 3).ToList();
+        public Dictionary<int, bool> TempData { get; set; } = new Dictionary<int, bool>
+        {
+            { 1, false },
+            { 2, false },
+            { 3, false }
+        };
     }
 
     public class CommandWithKeyAsyncHandler : TasqHandlerAsync<CommandWithKeyAsync, int, bool>
@@ -17,21 +22,18 @@ namespace TasqR.TestProject.Test4
         {
             await Task.Delay(2000);
 
-            return tasq.Keys.ToList();
+            return tasq.TempData.Select(a => a.Key).ToList();
         }
 
         public async override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
         {
             await Task.Delay(3000);
 
-            lock(process)
+            if (process.TempData.ContainsKey(key))
             {
-                if (process.Keys.Contains(key))
-                {
-                    process.Keys.Remove(key);
+                process.TempData[key] = true;
 
-                    return true;
-                }
+                return true;
             }
 
             return false;

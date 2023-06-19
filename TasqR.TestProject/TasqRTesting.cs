@@ -135,26 +135,8 @@ namespace TasqR.TestProject
 
             var temp = instance as CommandWithKeyAsync;
 
-            Assert.IsTrue(temp.Keys.Count == 0);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(TasqException))]
-        public void CanRunWithKeyForAsyncHandlerBaseTypeErr()
-        {
-            var handlerResolver = new TasqHandlerResolver();
-
-            handlerResolver.Register<CommandWithKeyAsyncHandler>();
-
-            var tasqR = new TasqR(handlerResolver);
-            var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
-
-
-            tasqR.Run(instance);
-
-            var temp = instance as CommandWithKeyAsync;
-
-            Assert.IsTrue(temp.Keys.Count == 0);
+            Assert.IsTrue(temp.TempData.Count > 0);
+            Assert.IsTrue(temp.TempData.All(a => a.Value));
         }
 
         [TestMethod]

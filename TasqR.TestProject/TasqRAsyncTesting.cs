@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TasqR.Common;
@@ -22,7 +24,7 @@ namespace TasqR.TestProject
             var tasqR = new TasqR(handlerResolver);
             var cmd = new CommandWithKeyAsync();
 
-            int initialCount = cmd.Keys.Count;
+            int initialCount = cmd.TempData.Count;
 
             bool allAreTrue = true;
             int callCount = 0;
@@ -61,6 +63,24 @@ namespace TasqR.TestProject
             }
 
             Assert.IsTrue(allAreTrue);
+        }
+
+        [TestMethod]
+        public async Task CanDynamicallyRunWithKeyBaseType()
+        {
+            var handlerResolver = new TasqHandlerResolver();
+
+            handlerResolver.Register<CommandWithKeyAsyncHandler>();
+
+            var tasqR = new TasqR(handlerResolver);
+            var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
+
+            await tasqR.RunAsync(instance);
+
+
+            var instanceResult = instance as CommandWithKeyAsync;
+
+            Assert.IsTrue(instanceResult.TempData.All(a => a.Value));
         }
 
         [TestMethod]

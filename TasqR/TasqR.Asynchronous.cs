@@ -18,14 +18,19 @@ namespace TasqR
             if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
             {
-                throw new TasqException("Tasq passed is with a key type (ITasq<,>) but being used as ITasq");
-                //var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
-                //var argT2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
+                // key
+                var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
+                // result
+                var argT2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
 
-                //var method = this.GetType().GetMethods().Single(a => a.Name == nameof(RunAsync) && a.GetGenericArguments().Length == 2);
-                //var methodInfo = method.MakeGenericMethod(argT1, argT2);
+                // find the RunAsync method with 2 generic arguments
+                var method = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).Single(a => a.Name == nameof(RunWithKeyAsync) && a.GetGenericArguments().Length == 2);
 
-                //methodInfo.Invoke(this, parameters: new object[] { tasq, cancellationToken });
+                var methodInfo = method.MakeGenericMethod(argT1, argT2);
+
+                var taskResult = (Task)methodInfo.Invoke(this, parameters: new object[] { tasq, cancellationToken });
+                
+                taskResult.ConfigureAwait(false).GetAwaiter().GetResult();
             }
             else if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                 && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 2)
@@ -50,35 +55,41 @@ namespace TasqR
         }
         #endregion
 
-        #region Run (with return)
-        public virtual async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+        protected virtual async Task<IEnumerable<TResponse>> RunWithKeyAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 
-            if (resolvedHandler.Handler is TasqHandler)
-            {
-                return Run(tasq);
-            }
-            else
-            {
-                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+            var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
 
-                tasqHandlerInstance.p_CancellationToken = cancellationToken;
+            tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
-                await tasqHandlerInstance.InitializeAsync(tasq);
+            await tasqHandlerInstance.InitializeAsync(tasq);
+            var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
+            var listResult = new List<TResponse>();
+
+            foreach (var item in selectionCriteria)
+            {
                 await tasqHandlerInstance.BeforeRunAsync(tasq);
-                var runTask = tasqHandlerInstance.XRunAsync(null, tasq);
+                var runTask = tasqHandlerInstance.XRunAsync(item, tasq);
+
                 await runTask;
 
                 await tasqHandlerInstance.AfterRunAsync(tasq);
 
-                return GetTaskResult<TResponse>(runTask);
-            }
-        }
-        #endregion
+                var result = GetTaskResult<TResponse>(runTask);
 
-        #region Run (with key)
-        public virtual async IAsyncEnumerable<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+                listResult.Add(result);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+
+            return listResult;
+        }
+
+        protected virtual async IAsyncEnumerable<TResponse> RunWithKeyAsyncEnumerable<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 
@@ -120,6 +131,39 @@ namespace TasqR
                     }
                 }
             }
+        }
+
+        #region Run (with return)
+        public virtual async Task<TResponse> RunAsync<TResponse>(ITasq<TResponse> tasq, CancellationToken cancellationToken = default)
+        {
+            var resolvedHandler = GetHandlerDetail(tasq);
+
+            if (resolvedHandler.Handler is TasqHandler)
+            {
+                return Run(tasq);
+            }
+            else
+            {
+                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+
+                tasqHandlerInstance.p_CancellationToken = cancellationToken;
+
+                await tasqHandlerInstance.InitializeAsync(tasq);
+                await tasqHandlerInstance.BeforeRunAsync(tasq);
+                var runTask = tasqHandlerInstance.XRunAsync(null, tasq);
+                await runTask;
+
+                await tasqHandlerInstance.AfterRunAsync(tasq);
+
+                return GetTaskResult<TResponse>(runTask);
+            }
+        }
+        #endregion
+
+        #region Run (with key)
+        public virtual IAsyncEnumerable<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
+        {
+            return RunWithKeyAsyncEnumerable(tasq, cancellationToken);
         }
 
         //public virtual async IAsyncEnumerator<TResponse> RunAsync<TKey, TResponse>(ITasq<TKey, TResponse> tasq, CancellationToken cancellationToken = default)
