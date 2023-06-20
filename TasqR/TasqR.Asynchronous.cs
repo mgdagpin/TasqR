@@ -43,14 +43,22 @@ namespace TasqR
             }
             else
             {
-                var tasqHandlerInstance = (TasqHandlerAsync)resolvedHandler.Handler;
+                if (resolvedHandler.Handler is TasqHandlerAsync tasqHandlerAsync)
+                {
+                    tasqHandlerAsync.p_CancellationToken = cancellationToken;
 
-                tasqHandlerInstance.p_CancellationToken = cancellationToken;
-
-                await tasqHandlerInstance.InitializeAsync(tasq);
-                await tasqHandlerInstance.BeforeRunAsync(tasq);
-                await tasqHandlerInstance.XRunAsync(null, tasq);
-                await tasqHandlerInstance.AfterRunAsync(tasq);
+                    await tasqHandlerAsync.InitializeAsync(tasq);
+                    await tasqHandlerAsync.BeforeRunAsync(tasq);
+                    await tasqHandlerAsync.XRunAsync(null, tasq);
+                    await tasqHandlerAsync.AfterRunAsync(tasq);
+                }
+                else if (resolvedHandler.Handler is TasqHandler tasqHandler)
+                {
+                    tasqHandler.Initialize(tasq);
+                    tasqHandler.BeforeRun(tasq);
+                    tasqHandler.XRun(null, tasq);
+                    tasqHandler.AfterRun(tasq);
+                }
             }            
         }
         #endregion
