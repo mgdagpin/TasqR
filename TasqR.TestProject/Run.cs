@@ -207,7 +207,7 @@ namespace TasqR.TestProject
                     }
                 }
 
-                Assert.True(cmd.AllAreCorrect);
+                Assert.True(cmd.Data.All(a => a.Value));
                 Assert.True(allAreTrue);
             }
 
@@ -223,7 +223,22 @@ namespace TasqR.TestProject
 
                 _ = tasqR.Run((ITasq<int, bool>)instance).ToList();
 
-                Assert.True(((CommandWithKey)instance).AllAreCorrect);
+                Assert.True(((CommandWithKey)instance).Data.All(a => a.Value));
+            }
+
+            [Fact]
+            public void NonAsyncDynamicHandler()
+            {
+                var handlerResolver = new TasqHandlerResolver();
+
+                handlerResolver.Register<CommandWithKeyHandler>();
+
+                var tasqR = new TasqR(handlerResolver);
+                var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKey));
+
+                tasqR.Run(instance);
+
+                Assert.True(((CommandWithKey)instance).Data.All(a => a.Value));
             }
 
             [Fact]

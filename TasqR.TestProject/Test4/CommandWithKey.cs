@@ -5,29 +5,26 @@ namespace TasqR.TestProject.Test4
 {
     public class CommandWithKey : ITasq<int, bool>
     {
-        public bool AllAreCorrect { get; set; }
+        public Dictionary<int, bool> Data = new Dictionary<int, bool>
+        {
+            { 1, false },
+            { 2, false },
+            { 3, false }
+        };
     }
 
     public class CommandWithKeyHandler : TasqHandler<CommandWithKey, int, bool>
     {
-        private readonly List<int> p_Keys = new List<int> { 1, 2, 3 };
-
-
         public override bool Run(int key, CommandWithKey process)
         {
-            if (p_Keys.Contains(key))
-            {
-                p_Keys.Remove(key);
-            }
-
-            process.AllAreCorrect = !p_Keys.Any();
+            process.Data[key] = true;
 
             return true;
         }
 
         public override IEnumerable<int> SelectionCriteria(CommandWithKey tasq)
         {
-            return new[] { 1, 2, 3 };
+            return tasq.Data.Keys;
         }
     }
 }

@@ -49,29 +49,32 @@ namespace TasqR
             }
             else
             {
-                var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
-
+                // if the tasq is iteration with key
                 if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                     && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 3)
                 {
                     var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
                     var argT2 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[2];
 
-                    var method = this.GetType().GetMethods().Single(a => a.Name == nameof(Run) && a.GetGenericArguments().Length == 2);
+                    var method = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).Single(a => a.Name == nameof(RunWithKey));
 
                     method.MakeGenericMethod(argT1, argT2).Invoke(this, parameters: new object[] { tasq });
                 }
+                // with return tasq
                 else if (resolvedHandler.Reference.HandlerInterface.IsGenericType
                     && resolvedHandler.Reference.HandlerInterface.GetGenericArguments().Length == 2)
                 {
                     var argT1 = resolvedHandler.Reference.HandlerInterface.GetGenericArguments()[1];
 
-                    var method = this.GetType().GetMethods().Single(a => a.Name == nameof(Run) && a.GetGenericArguments().Length == 1);
+                    var method = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).Single(a => a.Name == nameof(RunWithReturn));
 
                     method.MakeGenericMethod(argT1).Invoke(this, parameters: new object[] { tasq });
                 }
+                // void return tasq
                 else
                 {
+                    var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
+
                     tasqHandlerInstance.Initialize(tasq);
                     tasqHandlerInstance.BeforeRun(tasq);
                     tasqHandlerInstance.XRun(null, tasq);
@@ -82,7 +85,9 @@ namespace TasqR
         #endregion
 
         #region Run (with return)
-        public virtual TResponse Run<TResponse>(ITasq<TResponse> tasq)
+        public virtual TResponse Run<TResponse>(ITasq<TResponse> tasq) => RunWithReturn(tasq);
+
+        protected virtual TResponse RunWithReturn<TResponse>(ITasq<TResponse> tasq)
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 
@@ -104,20 +109,38 @@ namespace TasqR
         }
         #endregion
 
-        protected async Task<List<TResponse>> ToListAsync<TResponse>(IAsyncEnumerable<TResponse> temp1)
+        #region Run (with key)
+        public virtual IEnumerable<TResponse> Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq) => RunWithKeyEnumerable(tasq);
+
+        protected virtual IEnumerable<TResponse> RunWithKey<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
         {
+            var resolvedHandler = GetHandlerDetail(tasq);
+
+            var tasqHandlerInstance = (TasqHandler)resolvedHandler.Handler;
+
+            tasqHandlerInstance.Initialize(tasq);
+
+            var selectionCriteria = tasqHandlerInstance.SelectionCriteria(tasq);
             var result = new List<TResponse>();
 
-            await foreach (var item in temp1)
+            if (selectionCriteria != null)
             {
-                result.Add(item);
+                foreach (var eachSelection in selectionCriteria)
+                {
+                    tasqHandlerInstance.BeforeRun(tasq);
+
+                    var runResult = (TResponse)tasqHandlerInstance.XRun(eachSelection, tasq);
+
+                    result.Add(runResult);
+
+                    tasqHandlerInstance.AfterRun(tasq);
+                }
             }
 
             return result;
         }
 
-        #region Run (with key)
-        public virtual IEnumerable<TResponse> Run<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
+        protected virtual IEnumerable<TResponse> RunWithKeyEnumerable<TKey, TResponse>(ITasq<TKey, TResponse> tasq)
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 
@@ -145,9 +168,21 @@ namespace TasqR
                         tasqHandlerInstance.AfterRun(tasq);
                     }
                 }
-            }            
+            }
         }
         #endregion
+
+        protected async Task<List<TResponse>> ToListAsync<TResponse>(IAsyncEnumerable<TResponse> temp1)
+        {
+            var result = new List<TResponse>();
+
+            await foreach (var item in temp1)
+            {
+                result.Add(item);
+            }
+
+            return result;
+        }
 
         public virtual Type GetHandlerType(ITasq tasq)
         {

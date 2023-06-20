@@ -172,8 +172,23 @@ namespace TasqR.TestProject
                     }
                 }
 
-                Assert.True(cmd.AllAreCorrect);
+                Assert.True(cmd.Data.All(a => a.Value));
                 Assert.True(allAreTrue);
+            }
+
+            [Fact]
+            public async Task NonAsyncDynamicHandler()
+            {
+                var handlerResolver = new TasqHandlerResolver();
+
+                handlerResolver.Register<CommandWithKeyHandler>();
+
+                var tasqR = new TasqR(handlerResolver);
+                var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKey));
+
+                await tasqR.RunAsync(instance);
+
+                Assert.True(((CommandWithKey)instance).Data.All(a => a.Value));
             }
         }
     }
