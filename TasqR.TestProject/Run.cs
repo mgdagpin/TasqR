@@ -23,9 +23,10 @@ namespace TasqR.TestProject
             public void AsyncHandler()
             {
                 var testModel = new Test3Model { StartNumber = 10 };
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithAsyncWithoutReturnHandler>();
+                assemblyCol.Register<CommandWithAsyncWithoutReturnHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new CommandWithAsyncWithoutReturn(testModel);
@@ -39,9 +40,10 @@ namespace TasqR.TestProject
             public void NonAsyncHandler()
             {
                 var testModel = new TestModel { SampleNumber = 10 };
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<SampleCommandWithoutReturnHandler>();
+                assemblyCol.Register<SampleCommandWithoutReturnHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new SampleCommandWithoutReturn(testModel);
@@ -56,9 +58,10 @@ namespace TasqR.TestProject
             {
                 try
                 {
-                    var handlerResolver = new TasqHandlerResolver();
+                    var assemblyCol = new TasqAssemblyCollection();
+                    var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                    handlerResolver.Register<CmdHandlerWithNoParamlessCtorHandler>();
+                    assemblyCol.Register<CmdHandlerWithNoParamlessCtorHandler>();
                     var tasqR = new TasqR(handlerResolver);
 
                     var cmd = new CmdHandlerWithNoParamlessCtor();
@@ -88,8 +91,10 @@ namespace TasqR.TestProject
             [Fact]
             public void AsyncHandler()
             {
-                var handlerResolver = new TasqHandlerResolver();
-                handlerResolver.Register<TestCmdWithReturnForAsyncHandler>();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
+
+                assemblyCol.Register<TestCmdWithReturnForAsyncHandler>();
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new TestCmdWithReturnForAsync(2);
 
@@ -102,9 +107,10 @@ namespace TasqR.TestProject
             public void NonAsyncHandler()
             {
                 int startNumber = 8;
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<SampleCommandWithReturnHandler>();
+                assemblyCol.Register<SampleCommandWithReturnHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new SampleCommandWithReturn(startNumber);
@@ -120,9 +126,10 @@ namespace TasqR.TestProject
             [Fact]
             public void AsyncHandler()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyAsyncHandler>();
+                assemblyCol.Register<CommandWithKeyAsyncHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new CommandWithKeyAsync();
@@ -148,9 +155,10 @@ namespace TasqR.TestProject
             [Fact]
             public void AsyncDynamicHandler_CastedToITasq()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyAsyncHandler>();
+                assemblyCol.Register<CommandWithKeyAsyncHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var instance = (ITasq<int, bool>)Activator.CreateInstance(typeof(CommandWithKeyAsync));
@@ -171,9 +179,10 @@ namespace TasqR.TestProject
             [Fact]
             public void AsyncDynamicHandler()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyAsyncHandler>();
+                assemblyCol.Register<CommandWithKeyAsyncHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKeyAsync));
@@ -189,9 +198,10 @@ namespace TasqR.TestProject
             [Fact]
             public void NonAsyncHandler()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyHandler>();
+                assemblyCol.Register<CommandWithKeyHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var cmd = new CommandWithKey();
@@ -214,9 +224,10 @@ namespace TasqR.TestProject
             [Fact]
             public void NonAsyncDynamicHandler_CastedToITasq()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyHandler>();
+                assemblyCol.Register<CommandWithKeyHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var instance = Activator.CreateInstance(typeof(CommandWithKey));
@@ -229,9 +240,10 @@ namespace TasqR.TestProject
             [Fact]
             public void NonAsyncDynamicHandler()
             {
-                var handlerResolver = new TasqHandlerResolver();
+                var assemblyCol = new TasqAssemblyCollection();
+                var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                handlerResolver.Register<CommandWithKeyHandler>();
+                assemblyCol.Register<CommandWithKeyHandler>();
 
                 var tasqR = new TasqR(handlerResolver);
                 var instance = (ITasq)Activator.CreateInstance(typeof(CommandWithKey));
@@ -246,9 +258,10 @@ namespace TasqR.TestProject
             {
                 try
                 {
-                    var handlerResolver = new TasqHandlerResolver();
+                    var assemblyCol = new TasqAssemblyCollection();
+                    var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-                    handlerResolver.Register<TestWithErrorCmdHandler>();
+                    assemblyCol.Register<TestWithErrorCmdHandler>();
                     var tasqR = new TasqR(handlerResolver);
 
                     var cmd = new TestWithErrorCmd();
@@ -273,7 +286,8 @@ namespace TasqR.TestProject
             {
                 try
                 {
-                    var handlerResolver = new TasqHandlerResolver();
+                    var assemblyCol = new TasqAssemblyCollection();
+                    var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
                     var tasqR = new TasqR(handlerResolver);
                     var cmd = new CommandWithKey();

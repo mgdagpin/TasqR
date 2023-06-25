@@ -191,7 +191,7 @@ namespace TasqR
             return resolvedHandler.Reference.HandlerImplementation;
         }
 
-        private TasqHandlerDetail GetHandlerDetail(ITasq tasq)
+        public virtual TasqHandlerDetail GetHandlerDetail(ITasq tasq)
         {
             var tasqType = tasq.GetType();
 

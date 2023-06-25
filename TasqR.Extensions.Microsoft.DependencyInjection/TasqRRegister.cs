@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 
 using TasqR.Common;
+using TasqR.Processing;
+using TasqR.Processing.Interfaces;
 
 namespace TasqR
 {
@@ -12,7 +13,8 @@ namespace TasqR
     {
         private readonly IServiceProvider p_Provider;
 
-        public MicrosoftDependencyTasqHandlerResolver(IServiceProvider provider)
+        public MicrosoftDependencyTasqHandlerResolver(TasqAssemblyCollection tasqAssemblyCollection, IServiceProvider provider) 
+            : base(tasqAssemblyCollection)
         {
             p_Provider = provider;
         }
@@ -25,51 +27,34 @@ namespace TasqR
 
     public static class TasqRRegister
     {
-        static List<Assembly> assemblyList = new List<Assembly>();
-
-        public static void AddTasqR(this IServiceCollection services, ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped, params Assembly[] assemblies)
+        public static void AddTasqR(this IServiceCollection services,
+            ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped,
+            params Assembly[] assemblies)
         {
-            if (assemblies != null)
-            {
-                foreach (var a in assemblies)
-                {
-                    if (!assemblyList.Contains(a))
-                    {
-                        assemblyList.Add(a);
-                    }
-                }
-            }
+            services.AddTasqR<JobRequest>(tasqRServiceLifeTime, assemblies);
+        }
 
-            var resolver = new TasqHandlerResolver();
+        public static void AddTasqR<T>(this IServiceCollection services, 
+            ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped, 
+            params Assembly[] assemblies)
+             where T : IProcessTracker, new()
+        {
+            var instance = new TasqAssemblyCollection(assemblies);
 
-            var handlers = resolver.GetAllHandlers(assemblies);
-            foreach (var handler in handlers)
+            instance.RegisterFromAssembly();
+
+            foreach (var handler in instance.GetAllHandlers())
             {
                 services.AddTransient(handler);
             }
 
-            if (tasqRServiceLifeTime == ServiceLifetime.Scoped)
-            {
-                services.AddScoped<ITasqR>(p =>
-                {
-                    var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
+            services.AddSingleton(_ => instance);
 
-                    msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
+            services.AddScoped<ITasqHandlerResolver, MicrosoftDependencyTasqHandlerResolver>();
 
-                    return new TasqR(msDIHandlerResolver);
-                });
-            }
-            else if (tasqRServiceLifeTime == ServiceLifetime.Transient)
-            {
-                services.AddTransient<ITasqR>(p =>
-                {
-                    var msDIHandlerResolver = new MicrosoftDependencyTasqHandlerResolver(p);
-
-                    msDIHandlerResolver.RegisterFromAssembly(assemblyList.ToArray());
-
-                    return new TasqR(msDIHandlerResolver);
-                });
-            }            
+            services.Add(new ServiceDescriptor(typeof(ITasqHandlerResolver), typeof(MicrosoftDependencyTasqHandlerResolver), tasqRServiceLifeTime));
+            services.Add(new ServiceDescriptor(typeof(ITasqR), typeof(TasqR), tasqRServiceLifeTime));
+            services.Add(new ServiceDescriptor(typeof(JobProcessor<T>), factory: _ => new JobProcessor<T>(), tasqRServiceLifeTime));
         }
     }
 }
