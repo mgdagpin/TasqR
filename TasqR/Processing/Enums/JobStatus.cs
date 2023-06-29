@@ -11,8 +11,9 @@ namespace TasqR.Processing.Enums
         Initialized = 1,
         Queued = 2,
         Started = 3,
-        Error = 4,
+        Failed = 4,
         Completed = 5,
-        Aborted = 6
+        CompletedWithErrors = 6,
+        Aborted = 7
     }
 }

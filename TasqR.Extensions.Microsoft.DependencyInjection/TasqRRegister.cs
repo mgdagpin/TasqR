@@ -31,7 +31,7 @@ namespace TasqR
             ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped,
             params Assembly[] assemblies)
         {
-            services.AddTasqR<JobRequest>(tasqRServiceLifeTime, assemblies);
+            services.AddTasqR<ProcessTracker>(tasqRServiceLifeTime, assemblies);
         }
 
         public static void AddTasqR<T>(this IServiceCollection services, 

@@ -1,15 +1,17 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using TasqR.Processing.Enums;
 using TasqR.Processing.Interfaces;
 
 namespace TasqR.Processing
 {
-    public class JobRequest : IProcessTracker
+    public class ProcessTracker : IProcessTracker
     {
         protected ITasqR m_Processor;
         protected TaskJob m_Job;
         protected ParameterDictionary m_Parameters;
+        protected List<TaskLog> m_Logs = new List<TaskLog>();
 
         private bool jobIsAlreadyAttached;
         private int totalProcessed;
@@ -69,21 +71,44 @@ namespace TasqR.Processing
         public virtual void JobEnded()
         {
             JobStatus = JobStatus.Completed;
+
+            if (m_Logs.Any(a => a.Level == TaskMessageLogLevel.Error))
+            {
+                JobStatus = JobStatus.CompletedWithErrors;
+            }
         }
 
         public virtual void LogError(Exception exception, object key = null)
         {
-            
+            m_Logs.Add(new TaskLog
+            {
+                CreatedOn = DateTime.UtcNow,
+                Data = exception,
+                Key = key,
+                Level = TaskMessageLogLevel.Error
+            });
         }
 
         public virtual void LogMessage(string message, object key = null)
         {
-
+            m_Logs.Add(new TaskLog
+            {
+                CreatedOn = DateTime.UtcNow,
+                Data = message,
+                Key = key,
+                Level = TaskMessageLogLevel.Info
+            });
         }
 
         public virtual void LogWarning(string message, object key = null)
         {
-
+            m_Logs.Add(new TaskLog
+            {
+                CreatedOn = DateTime.UtcNow,
+                Data = message,
+                Key = key,
+                Level = TaskMessageLogLevel.Warning
+            });
         }
 
         public virtual void ReThrowErrorsIfAny()
@@ -92,7 +117,7 @@ namespace TasqR.Processing
         }
 
 
-        public bool TryGetJobParameter<T>(string key, out T result)
+        public virtual bool TryGetJobParameter<T>(string key, out T result)
         {
             if (m_Parameters != null && m_Parameters.Exists(key))
             {
