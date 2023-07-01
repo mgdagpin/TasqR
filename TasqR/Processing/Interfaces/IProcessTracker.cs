@@ -19,7 +19,6 @@ namespace TasqR.Processing.Interfaces
         void LogMessage(string message, object key = null);
         void LogWarning(string message, object key = null);
         void LogError(Exception exception, object key = null);
-        void ReThrowErrorsIfAny();
         void JobStarted();
         void JobEnded();
         void Abort();

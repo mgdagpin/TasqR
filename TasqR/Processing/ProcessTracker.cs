@@ -17,9 +17,10 @@ namespace TasqR.Processing
         private int totalProcessed;
         private bool? isAborted;
 
-        public bool IsBatch { get; private set; }
-        public JobStatus JobStatus { get; private set; }
         public Guid UID { get; private set; }
+
+        public bool IsBatch { get; protected set; }
+        public JobStatus JobStatus { get; protected set; }
 
         public bool? Aborted => isAborted;
         public int TotalProcessed => totalProcessed;
@@ -51,6 +52,8 @@ namespace TasqR.Processing
             }
 
             jobIsAlreadyAttached = true;
+
+            JobStatus = JobStatus.Queued;
         }
 
         public virtual void JobStarted()
@@ -110,12 +113,6 @@ namespace TasqR.Processing
                 Level = TaskMessageLogLevel.Warning
             });
         }
-
-        public virtual void ReThrowErrorsIfAny()
-        {
-
-        }
-
 
         public virtual bool TryGetJobParameter<T>(string key, out T result)
         {
