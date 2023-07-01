@@ -36,7 +36,7 @@ namespace TasqR
         public static void AddTasqR<T>(this IServiceCollection services, 
             ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped, 
             params Assembly[] assemblies)
-             where T : IProcessTracker, new()
+             where T : IProcessTracker
         {
             var instance = new TasqAssemblyCollection(assemblies);
 
