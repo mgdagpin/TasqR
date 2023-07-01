@@ -1,5 +1,5 @@
 ﻿using System;
-using TasqR.Processing.Enums;
+using static TasqR.Processing.Enums;
 
 namespace TasqR.Processing
 {

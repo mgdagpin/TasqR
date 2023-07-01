@@ -3,19 +3,19 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using TasqR.Processing.Interfaces;
-
 namespace TasqR.Processing
 {
-    public class JobProcessor<T> where T : IProcessTracker, new()
+    public class JobProcessor<T> where T : IProcessTracker
     {
-        public IProcessTracker QueueJob(ITasqR processor, TaskJob job, ParameterDictionary parameters)
+        public virtual T InstantiateProcessTracker() => (T)Activator.CreateInstance(typeof(T));
+
+        public virtual IProcessTracker QueueJob(ITasqR processor, TaskJob job)
         {
-            var jobRequest = new T();
+            var jobRequest = InstantiateProcessTracker();
 
             jobRequest.Initialize(processor);
 
-            jobRequest.AttachJob(job, parameters);
+            jobRequest.AttachJob(job);
 
             jobRequest.JobStarted();
 
@@ -50,13 +50,13 @@ namespace TasqR.Processing
             return jobRequest;
         }
 
-        public async Task<IProcessTracker> QueueJobAsync(ITasqR processor, TaskJob job, ParameterDictionary parameters, CancellationToken cancellationToken = default)
+        public virtual async Task<IProcessTracker> QueueJobAsync(ITasqR processor, TaskJob job, CancellationToken cancellationToken = default)
         {
-            var jobRequest = new T();
+            var jobRequest = InstantiateProcessTracker();
 
             jobRequest.Initialize(processor);
 
-            jobRequest.AttachJob(job, parameters);
+            jobRequest.AttachJob(job);
 
             jobRequest.JobStarted();
 
@@ -76,7 +76,7 @@ namespace TasqR.Processing
 
                 if (!jobRequest.IsBatch)
                 {
-                    await processor.RunAsync(instance);
+                    await processor.RunAsync(instance, cancellationToken);
 
                     jobRequest.JobEnded();
                 }

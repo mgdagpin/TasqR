@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TasqR.Processing
 {
     public class TaskHandlerProvider
     {
-        public short ID { get; set; }
-
         public string TaskAssembly { get; set; }
         public string TaskClass { get; set; }
 

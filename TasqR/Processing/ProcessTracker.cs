@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TasqR.Processing.Enums;
-using TasqR.Processing.Interfaces;
+using static TasqR.Processing.Enums;
 
 namespace TasqR.Processing
 {
@@ -10,7 +9,6 @@ namespace TasqR.Processing
     {
         protected ITasqR m_Processor;
         protected TaskJob m_Job;
-        protected ParameterDictionary m_Parameters;
         protected List<TaskLog> m_Logs = new List<TaskLog>();
 
         private bool jobIsAlreadyAttached;
@@ -34,7 +32,7 @@ namespace TasqR.Processing
             JobStatus = JobStatus.Initialized;
         }
 
-        public virtual void AttachJob(TaskJob job, ParameterDictionary parameters)
+        public virtual void AttachJob(TaskJob job)
         {
             if (jobIsAlreadyAttached)
             {
@@ -42,11 +40,8 @@ namespace TasqR.Processing
             }
 
             m_Job = job;
-            m_Parameters = parameters;
 
-            if (parameters["SpecialGroupID"] != null
-                && int.TryParse(parameters["SpecialGroupID"].Value, out int specialGroupId)
-                && specialGroupId > 0)
+            if (m_Job.JobParameters.GetAs<int>("SpecialGroupID") > 0)
             {
                 IsBatch = true;
             }
@@ -116,9 +111,9 @@ namespace TasqR.Processing
 
         public virtual bool TryGetJobParameter<T>(string key, out T result)
         {
-            if (m_Parameters != null && m_Parameters.Exists(key))
+            if (m_Job.JobParameters != null && m_Job.JobParameters.Exists(key))
             {
-                result = m_Parameters.GetAs<T>(key);
+                result = m_Job.JobParameters.GetAs<T>(key);
 
                 return true;
             }

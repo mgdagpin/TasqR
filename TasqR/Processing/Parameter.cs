@@ -5,32 +5,25 @@ namespace TasqR.Processing
     public class Parameter
     {
         public string Name { get; set; }
-        public string Value { get; set; }
+        public object DefaultValue { get; set; }
+        public object Value { get; set; }
         public string DataType { get; set; }
         public bool IsRequired { get; set; }
         public int? MaxLength { get; set; }
 
-        public Parameter() { }
-
-        public Parameter(string name, object value)
+        public virtual bool IsValid()
         {
-            Name = name;
-            Value = value?.ToString();
-        }
+            bool retVal = false;
 
-        public bool IsValid()
-        {
-            //bool retVal = false;
+            if (IsRequired && string.IsNullOrWhiteSpace(Value?.ToString()))
+            {
+                return false;
+            }
 
-            //if (IsRequired && string.IsNullOrWhiteSpace(Value))
-            //{
-            //    return false;
-            //}
-
-            //if (!IsRequired && string.IsNullOrWhiteSpace(Value))
-            //{
-            //    return true;
-            //}
+            if (!IsRequired && string.IsNullOrWhiteSpace(Value?.ToString()))
+            {
+                return true;
+            }
 
             //switch (DataType)
             //{
@@ -55,13 +48,12 @@ namespace TasqR.Processing
             //        break;
             //}
 
-            //return retVal;
-            throw new NotImplementedException();
+            return retVal;
         }
 
         public override string ToString()
         {
-            string value = Value;
+            var value = Value?.ToString();
 
             if (value == null)
             {
@@ -75,6 +67,6 @@ namespace TasqR.Processing
             return $"{Name}: {value}";
         }
 
-        public static implicit operator Parameter(string data) => new Parameter(null, data);
+        public static implicit operator Parameter(string data) => new Parameter { Value = data };
     }
 }

@@ -1,8 +1,7 @@
 ﻿using System;
+using static TasqR.Processing.Enums;
 
-using TasqR.Processing.Enums;
-
-namespace TasqR.Processing.Interfaces
+namespace TasqR.Processing
 {
     public interface IProcessTracker
     {
@@ -15,7 +14,7 @@ namespace TasqR.Processing.Interfaces
 
         void Initialize(ITasqR processor);
         void IncrementTotalProcessed();
-        void AttachJob(TaskJob job, ParameterDictionary parameters);
+        void AttachJob(TaskJob job);
         void LogMessage(string message, object key = null);
         void LogWarning(string message, object key = null);
         void LogError(Exception exception, object key = null);

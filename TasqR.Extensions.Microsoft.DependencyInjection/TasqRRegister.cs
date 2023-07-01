@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using TasqR.Common;
 using TasqR.Processing;
-using TasqR.Processing.Interfaces;
 
 namespace TasqR
 {

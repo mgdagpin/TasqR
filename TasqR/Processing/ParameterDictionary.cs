@@ -4,9 +4,9 @@ using System.ComponentModel;
 
 namespace TasqR.Processing
 {
-    public class ParameterDictionary : Dictionary<string, Parameter>
+    public class ParameterDictionary<T> : Dictionary<string, T> where T : Parameter
     {
-        public new Parameter this[string key]
+        public new T this[string key]
         {
             get
             {
@@ -19,9 +19,9 @@ namespace TasqR.Processing
             }
             set
             {
-                Parameter newParam = value;
+                T newParam = value;
 
-                if (newParam.Name == null)
+                if (newParam != null && newParam.Name == null)
                 {
                     newParam.Name = key;
                 }
@@ -32,56 +32,56 @@ namespace TasqR.Processing
 
         public ParameterDictionary() : base(StringComparer.OrdinalIgnoreCase) { }
 
-        public ParameterDictionary(params Parameter[] args) : base(StringComparer.OrdinalIgnoreCase)
+        public ParameterDictionary(params T[] args) : base(StringComparer.OrdinalIgnoreCase)
         {
             if (args != null)
             {
                 foreach (var parameter in args)
                 {
-                    this[parameter.Name.ToLower()] = parameter;
+                    this[parameter.Name] = parameter;
                 }
             }
         }
 
-        public ParameterDictionary(IEnumerable<Parameter> parameters) : base(StringComparer.OrdinalIgnoreCase)
+        public ParameterDictionary(IEnumerable<T> parameters) : base(StringComparer.OrdinalIgnoreCase)
         {
             if (parameters != null)
             {
                 foreach (var parameter in parameters)
                 {
-                    this[parameter.Name.ToLower()] = parameter;
+                    this[parameter.Name] = parameter;
                 }
             }
         }
 
-        public virtual T GetAs<T>(string key)
+        public virtual TType GetAs<TType>(string key)
         {
             var data = this[key];
 
             if (data == null)
             {
-                return default(T);
+                return default;
             }
 
-            if (string.IsNullOrWhiteSpace(data.Value))
+            if (string.IsNullOrWhiteSpace(data.Value?.ToString()))
             {
-                return default(T);
+                return default;
             }
 
             // https://stackoverflow.com/a/2961702/403971
             try
             {
-                var converter = TypeDescriptor.GetConverter(typeof(T));
+                var converter = TypeDescriptor.GetConverter(typeof(TType));
                 if (converter != null)
                 {
-                    // Cast ConvertFromString(string text) : object to (T)
-                    return (T)converter.ConvertFromString(data.Value);
+                    // Cast ConvertFromString(string text) : object to (TType)
+                    return (TType)converter.ConvertFromString(data.Value?.ToString());
                 }
-                return default(T);
+                return default;
             }
             catch (NotSupportedException)
             {
-                return default(T);
+                return default;
             }
         }
 
