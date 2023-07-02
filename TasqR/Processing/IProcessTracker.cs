@@ -22,6 +22,6 @@ namespace TasqR.Processing
         void JobEnded();
         void Abort();
 
-        bool TryGetJobParameter<T>(string key, out T result);
+        bool TryGetParameter<T>(string key, out T result);
     }
 }

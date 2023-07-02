@@ -74,6 +74,8 @@ namespace TasqR.Processing
             {
                 JobStatus = JobStatus.CompletedWithErrors;
             }
+
+            isAborted = false;
         }
 
         public virtual void LogError(Exception exception, object key = null)
@@ -109,7 +111,7 @@ namespace TasqR.Processing
             });
         }
 
-        public virtual bool TryGetJobParameter<T>(string key, out T result)
+        public virtual bool TryGetParameter<T>(string key, out T result)
         {
             if (m_Job.JobParameters != null && m_Job.JobParameters.Exists(key))
             {

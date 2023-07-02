@@ -9,7 +9,7 @@ namespace TasqR.Processing
     {
         public virtual T InstantiateProcessTracker() => (T)Activator.CreateInstance(typeof(T));
 
-        public virtual IProcessTracker QueueJob(ITasqR processor, TaskJob job)
+        public virtual IProcessTracker RunJob(ITasqR processor, TaskJob job, bool forceRun = false)
         {
             var jobRequest = InstantiateProcessTracker();
 
@@ -17,10 +17,15 @@ namespace TasqR.Processing
 
             jobRequest.AttachJob(job);
 
-            jobRequest.JobStarted();
+            if (jobRequest.IsBatch && !forceRun)
+            {
+                return jobRequest;
+            }
 
             try
             {
+                jobRequest.JobStarted();
+
                 var handlerProvider = job.TaskHandlerProvider;
 
                 var assembly = Assembly.Load(assemblyString: handlerProvider.TaskAssembly);
@@ -33,12 +38,9 @@ namespace TasqR.Processing
                     processor.UsingAsHandler(handlerProvider.NonDefaultHandler);
                 }
 
-                if (!jobRequest.IsBatch)
-                {
-                    processor.Run(instance);
+                processor.Run(instance);
 
-                    jobRequest.JobEnded();
-                }
+                jobRequest.JobEnded();
             }
             catch (Exception ex)
             {
@@ -50,7 +52,7 @@ namespace TasqR.Processing
             return jobRequest;
         }
 
-        public virtual async Task<IProcessTracker> QueueJobAsync(ITasqR processor, TaskJob job, CancellationToken cancellationToken = default)
+        public virtual async Task<IProcessTracker> RunJobAsync(ITasqR processor, TaskJob job, bool forceRun = false, CancellationToken cancellationToken = default)
         {
             var jobRequest = InstantiateProcessTracker();
 
@@ -58,10 +60,15 @@ namespace TasqR.Processing
 
             jobRequest.AttachJob(job);
 
-            jobRequest.JobStarted();
+            if (jobRequest.IsBatch && !forceRun)
+            {
+                return jobRequest;
+            }
 
             try
             {
+                jobRequest.JobStarted();
+
                 var handlerProvider = job.TaskHandlerProvider;
 
                 var assembly = Assembly.Load(assemblyString: handlerProvider.TaskAssembly);
@@ -74,12 +81,9 @@ namespace TasqR.Processing
                     processor.UsingAsHandler(handlerProvider.NonDefaultHandler);
                 }
 
-                if (!jobRequest.IsBatch)
-                {
-                    await processor.RunAsync(instance, cancellationToken);
+                await processor.RunAsync(instance, cancellationToken);
 
-                    jobRequest.JobEnded();
-                }
+                jobRequest.JobEnded();
             }
             catch (Exception ex)
             {
