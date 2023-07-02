@@ -51,22 +51,6 @@ namespace TasqR.Processing
             return retVal;
         }
 
-        public override string ToString()
-        {
-            var value = Value?.ToString();
-
-            if (value == null)
-            {
-                value = "Nothing passed";
-            }
-            else if (value.Trim() == "")
-            {
-                value = "Passed with empty string";
-            }
-
-            return $"{Name}: {value}";
-        }
-
         public static implicit operator Parameter(string data) => new Parameter { Value = data };
     }
 }

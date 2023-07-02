@@ -7,7 +7,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageIcon>TasqR.png</PackageIcon>
 		<Copyright>Copyright (c) 2023</Copyright>
-		<Version>1.5.1.2</Version>
+		<Version>1.5.1.3</Version>
 		<RepositoryUrl>https://github.com/mgdagpin/TasqR</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/mgdagpin/TasqR</PackageProjectUrl>
 		<IncludeSymbols>True</IncludeSymbols>

@@ -9,7 +9,11 @@ namespace TasqR.Processing
     {
         public virtual T InstantiateProcessTracker() => (T)Activator.CreateInstance(typeof(T));
 
-        public virtual IProcessTracker RunJob(ITasqR processor, TaskJob job, bool forceRun = false)
+        protected virtual void Queue(T processTracker) { }
+
+        protected virtual Task QueueAsync(T processTracker, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public virtual IProcessTracker RunJob(ITasqR processor, TaskJob job, bool runBatch = false)
         {
             var jobRequest = InstantiateProcessTracker();
 
@@ -17,8 +21,10 @@ namespace TasqR.Processing
 
             jobRequest.AttachJob(job);
 
-            if (jobRequest.IsBatch && !forceRun)
+            if (jobRequest.IsBatch && !runBatch)
             {
+                Queue(jobRequest);
+
                 return jobRequest;
             }
 
@@ -39,20 +45,18 @@ namespace TasqR.Processing
                 }
 
                 processor.Run(instance);
-
-                jobRequest.JobEnded();
             }
             catch (Exception ex)
             {
                 jobRequest.LogError(ex);
-
-                jobRequest.JobEnded();
             }
+
+            jobRequest.JobEnded();
 
             return jobRequest;
         }
 
-        public virtual async Task<IProcessTracker> RunJobAsync(ITasqR processor, TaskJob job, bool forceRun = false, CancellationToken cancellationToken = default)
+        public virtual async Task<IProcessTracker> RunJobAsync(ITasqR processor, TaskJob job, bool runBatch = false, CancellationToken cancellationToken = default)
         {
             var jobRequest = InstantiateProcessTracker();
 
@@ -60,8 +64,10 @@ namespace TasqR.Processing
 
             jobRequest.AttachJob(job);
 
-            if (jobRequest.IsBatch && !forceRun)
+            if (jobRequest.IsBatch && !runBatch)
             {
+                await QueueAsync(jobRequest, cancellationToken);
+
                 return jobRequest;
             }
 
@@ -82,15 +88,13 @@ namespace TasqR.Processing
                 }
 
                 await processor.RunAsync(instance, cancellationToken);
-
-                jobRequest.JobEnded();
             }
             catch (Exception ex)
             {
                 jobRequest.LogError(ex);
-
-                jobRequest.JobEnded();
             }
+
+            jobRequest.JobEnded();
 
             return jobRequest;
         }
