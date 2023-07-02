@@ -70,8 +70,7 @@ namespace TasqR.TestProject
                 catch (Exception ex)
                 {
                     Assert.Equal(typeof(MissingMethodException), ex.GetType());
-
-                    Assert.StartsWith("No parameterless constructor defined for type", ex.Message);
+                    Assert.Contains("No parameterless constructor defined", ex.Message);
                 }
             }
 

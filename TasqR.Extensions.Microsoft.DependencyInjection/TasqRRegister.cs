@@ -26,6 +26,8 @@ namespace TasqR
 
     public static class TasqRRegister
     {
+        static TasqAssemblyCollection p_TasqAssemblyCollection = new TasqAssemblyCollection();
+
         public static void AddTasqR(this IServiceCollection services,
             ServiceLifetime tasqRServiceLifeTime = ServiceLifetime.Scoped,
             params Assembly[] assemblies)
@@ -38,16 +40,14 @@ namespace TasqR
             params Assembly[] assemblies)
              where T : IProcessTracker
         {
-            var instance = new TasqAssemblyCollection(assemblies);
+            p_TasqAssemblyCollection.RegisterFromAssembly(assemblies);
 
-            instance.RegisterFromAssembly();
-
-            foreach (var handler in instance.GetAllHandlers())
+            foreach (var handler in p_TasqAssemblyCollection.GetAllHandlers(assemblies))
             {
                 services.AddTransient(handler);
             }
 
-            services.AddSingleton(_ => instance);
+            services.AddSingleton(_ => p_TasqAssemblyCollection);
 
             services.AddScoped<ITasqHandlerResolver, MicrosoftDependencyTasqHandlerResolver>();
 

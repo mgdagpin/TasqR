@@ -7,18 +7,11 @@ namespace TasqR.Common
 {
     public class TasqAssemblyCollection
     {
-        private readonly Assembly[] p_Assemblies;
-
         public Dictionary<Type, TypeTasqReference> TasqHanders { get; } = new Dictionary<Type, TypeTasqReference>();
 
-        public TasqAssemblyCollection(params Assembly[] assemblies)
+        public virtual void RegisterFromAssembly(params Assembly[] assemblies)
         {
-            p_Assemblies = assemblies;
-        }
-
-        public virtual void RegisterFromAssembly()
-        {
-            foreach (var handler in GetAllHandlers())
+            foreach (var handler in GetAllHandlers(assemblies))
             {
                 Register(TypeTasqReference.Resolve(handler));
             }
@@ -34,11 +27,11 @@ namespace TasqR.Common
             Register(TypeTasqReference.Resolve<THandler>());
         }
 
-        public IEnumerable<Type> GetAllHandlers()
+        public IEnumerable<Type> GetAllHandlers(params Assembly[] assemblies)
         {
             var handlers = new List<Type>();
 
-            var assembliesToScan = p_Assemblies.Distinct().ToList();
+            var assembliesToScan = assemblies.Distinct().ToList();
 
             if (assembliesToScan.Count == 0)
             {

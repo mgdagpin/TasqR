@@ -5,7 +5,6 @@ namespace TasqR.Processing
     public class Parameter
     {
         public string Name { get; set; }
-        public object DefaultValue { get; set; }
         public object Value { get; set; }
         public string DataType { get; set; }
         public bool IsRequired { get; set; }

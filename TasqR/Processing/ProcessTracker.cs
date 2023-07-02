@@ -41,7 +41,9 @@ namespace TasqR.Processing
 
             m_Job = job;
 
-            if (m_Job.JobParameters.GetAs<int>("SpecialGroupID") > 0)
+            if (m_Job != null 
+                && m_Job.Parameters != null 
+                && m_Job.Parameters.GetAs<int>("SpecialGroupID") > 0)
             {
                 IsBatch = true;
             }
@@ -113,9 +115,11 @@ namespace TasqR.Processing
 
         public virtual bool TryGetParameter<T>(string key, out T result)
         {
-            if (m_Job.JobParameters != null && m_Job.JobParameters.Exists(key))
+            if (m_Job != null 
+                && m_Job.Parameters != null 
+                && m_Job.Parameters.Exists(key))
             {
-                result = m_Job.JobParameters.GetAs<T>(key);
+                result = m_Job.Parameters.GetAs<T>(key);
 
                 return true;
             }

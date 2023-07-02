@@ -15,6 +15,16 @@ namespace TasqR.Processing
 
         public virtual IProcessTracker RunJob(ITasqR processor, TaskJob job, bool runBatch = false)
         {
+            if (job == null)
+            {
+                throw new ArgumentNullException(nameof(job));
+            }
+
+            if (job.TasqProvider == null)
+            {
+                throw new ArgumentNullException(nameof(job.TasqProvider));
+            }
+
             var jobRequest = InstantiateProcessTracker();
 
             jobRequest.Initialize(processor);
@@ -32,7 +42,7 @@ namespace TasqR.Processing
             {
                 jobRequest.JobStarted();
 
-                var handlerProvider = job.TaskHandlerProvider;
+                var handlerProvider = job.TasqProvider;
 
                 var assembly = Assembly.Load(assemblyString: handlerProvider.TaskAssembly);
                 var type = assembly.GetType(handlerProvider.TaskClass);
@@ -58,6 +68,16 @@ namespace TasqR.Processing
 
         public virtual async Task<IProcessTracker> RunJobAsync(ITasqR processor, TaskJob job, bool runBatch = false, CancellationToken cancellationToken = default)
         {
+            if (job == null)
+            {
+                throw new ArgumentNullException(nameof(job));
+            }
+
+            if (job.TasqProvider == null)
+            {
+                throw new ArgumentNullException(nameof(job.TasqProvider));
+            }
+
             var jobRequest = InstantiateProcessTracker();
 
             jobRequest.Initialize(processor);
@@ -75,7 +95,7 @@ namespace TasqR.Processing
             {
                 jobRequest.JobStarted();
 
-                var handlerProvider = job.TaskHandlerProvider;
+                var handlerProvider = job.TasqProvider;
 
                 var assembly = Assembly.Load(assemblyString: handlerProvider.TaskAssembly);
                 var type = assembly.GetType(handlerProvider.TaskClass);

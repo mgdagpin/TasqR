@@ -17,10 +17,10 @@ namespace TasqR.TestProject.Microsoft.DependencyInjection
         [TestMethod]
         public void CanResolveMultiLevelConcreteHandler()
         {
-            var assemblyCol = new TasqAssemblyCollection(new[] { Assembly.GetExecutingAssembly() });
+            var assemblyCol = new TasqAssemblyCollection();
             var handlerResolver = new TasqHandlerResolver(assemblyCol);
 
-            var handlers = assemblyCol.GetAllHandlers();
+            var handlers = assemblyCol.GetAllHandlers(Assembly.GetExecutingAssembly());
 
             Assert.IsTrue(handlers.Any(t => t == typeof(TestCommandWithMultipleHandlerHandler2)));
             Assert.IsFalse(handlers.Any(t => t == typeof(Base1Handler)));
