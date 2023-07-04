@@ -8,9 +8,7 @@ namespace TasqR.Processing
         JobStatus JobStatus { get; }
         int TotalProcessed { get; }
         Guid UID { get; }
-        bool? Aborted { get; }
         bool IsBatch { get; }
-
 
         void Initialize(ITasqR processor);
         void IncrementTotalProcessed();
@@ -19,9 +17,11 @@ namespace TasqR.Processing
         void LogWarning(string message, object key = null);
         void LogError(Exception exception, object key = null);
         void JobStarted();
-        void JobEnded();
         void Abort();
+        void JobEnded();
 
         bool TryGetParameter<T>(string key, out T result);
+
+        void ReThrowErrorsIfAny();
     }
 }

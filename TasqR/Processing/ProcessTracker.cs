@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using static TasqR.Processing.Enums;
 
 namespace TasqR.Processing
@@ -13,14 +14,12 @@ namespace TasqR.Processing
 
         private bool jobIsAlreadyAttached;
         private int totalProcessed;
-        private bool? isAborted;
 
         public Guid UID { get; private set; }
 
         public bool IsBatch { get; protected set; }
         public JobStatus JobStatus { get; protected set; }
 
-        public bool? Aborted => isAborted;
         public int TotalProcessed => totalProcessed;
 
         public virtual void Initialize(ITasqR processor)
@@ -60,7 +59,7 @@ namespace TasqR.Processing
 
         public virtual void Abort()
         {
-            isAborted = true;
+            JobStatus = JobStatus.Aborted;
         }
 
         public virtual void IncrementTotalProcessed()
@@ -70,14 +69,19 @@ namespace TasqR.Processing
 
         public virtual void JobEnded()
         {
-            JobStatus = JobStatus.Completed;
-
+            if (JobStatus == JobStatus.Aborted)
+            {
+                return;
+            }
+            
             if (m_Logs.Any(a => a.Level == TaskMessageLogLevel.Error))
             {
                 JobStatus = JobStatus.CompletedWithErrors;
             }
-
-            isAborted = false;
+            else
+            {
+                JobStatus = JobStatus.Completed;
+            }
         }
 
         public virtual void LogError(Exception exception, object key = null)
@@ -127,6 +131,18 @@ namespace TasqR.Processing
             result = default;
 
             return false;
+        }
+
+        public void ReThrowErrorsIfAny()
+        {
+            var errors = m_Logs.Where(a => a.Level == TaskMessageLogLevel.Error);
+
+            if (errors.Any())
+            {
+                var aggregateExceptions = new AggregateException(errors.Select(a => a.Data as Exception).ToArray());
+
+                ExceptionDispatchInfo.Capture(aggregateExceptions).Throw();
+            }
         }
     }
 }
