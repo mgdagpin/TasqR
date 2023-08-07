@@ -17,10 +17,18 @@ namespace TasqR.Processing
 
         public Guid UID { get; private set; }
 
-        public bool IsBatch { get; protected set; }
-        public JobStatus JobStatus { get; protected set; }
+        public virtual bool IsBatch { get; protected set; }
+        public virtual JobStatus JobStatus { get; protected set; }
 
-        public int TotalProcessed => totalProcessed;
+        /// <summary>
+        /// Gets the total of data processed.
+        /// </summary>
+        public virtual int Processed => totalProcessed;
+
+        /// <summary>
+        /// Gets or sets how many data to process
+        /// </summary>
+        public virtual int Total { get; set; }
 
         public virtual void Initialize(ITasqR processor)
         {

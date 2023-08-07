@@ -6,7 +6,7 @@ namespace TasqR.Processing
     public interface IProcessTracker
     {
         JobStatus JobStatus { get; }
-        int TotalProcessed { get; }
+        int Processed { get; }
         Guid UID { get; }
         bool IsBatch { get; }
 
