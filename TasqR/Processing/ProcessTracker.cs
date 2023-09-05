@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using static TasqR.Processing.Enums;
@@ -11,6 +12,8 @@ namespace TasqR.Processing
         protected ITasqR m_Processor;
         protected TaskJob m_Job;
         protected List<TaskLog> m_Logs = new List<TaskLog>();
+
+        private Stopwatch p_Watch = new Stopwatch();
 
         private bool jobIsAlreadyAttached;
         private int totalProcessed;
@@ -24,6 +27,7 @@ namespace TasqR.Processing
         public virtual int Processed => totalProcessed;
 
         public virtual int Total { get; set; }
+        public bool CanTrackExecutionTime { get; set; }
 
         public virtual void Initialize(ITasqR processor)
         {
@@ -62,6 +66,8 @@ namespace TasqR.Processing
 
         public virtual void Abort()
         {
+            p_Watch.Stop();
+
             JobStatus = JobStatus.Aborted;
         }
 
@@ -72,6 +78,8 @@ namespace TasqR.Processing
 
         public virtual void JobEnded()
         {
+            p_Watch.Stop();
+
             if (JobStatus == JobStatus.Aborted)
             {
                 return;
@@ -85,6 +93,18 @@ namespace TasqR.Processing
             {
                 JobStatus = JobStatus.Completed;
             }
+        }
+
+        public virtual void TrackExecutionTime(string tag, object key = null)
+        {
+            if (CanTrackExecutionTime)
+            {
+                p_Watch.Stop();
+
+                LogMessage($"{tag}: {p_Watch.ElapsedMilliseconds}", key);
+
+                p_Watch.Restart();
+            }            
         }
 
         public virtual void LogError(Exception exception, object key = null)
