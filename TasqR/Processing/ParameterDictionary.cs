@@ -54,7 +54,7 @@ namespace TasqR.Processing
             }
         }
 
-        public virtual TType GetAs<TType>(string key)
+        public virtual TType GetAs<TType>(string key, bool throwWhenError = false)
         {
             var data = this[key];
 
@@ -79,8 +79,13 @@ namespace TasqR.Processing
                 }
                 return default;
             }
-            catch (NotSupportedException)
+            catch (Exception)
             {
+                if (throwWhenError)
+                {
+                    throw;
+                }
+
                 return default;
             }
         }

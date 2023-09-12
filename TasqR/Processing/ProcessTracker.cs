@@ -156,6 +156,18 @@ namespace TasqR.Processing
             return false;
         }
 
+        public T GetParameter<T>(string key, T defaultValue = default)
+        {
+            if (m_Job != null
+                && m_Job.Parameters != null
+                && m_Job.Parameters.Exists(key))
+            {
+                return m_Job.Parameters.GetAs<T>(key, throwWhenError: true);
+            }
+
+            return defaultValue;
+        }
+
         public void ReThrowErrorsIfAny()
         {
             var errors = m_Logs.Where(a => a.Level == TaskMessageLogLevel.Error);

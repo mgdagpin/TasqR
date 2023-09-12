@@ -36,7 +36,24 @@ namespace TasqR.Processing
         void Abort();
         void JobEnded();
 
+        /// <summary>
+        /// Try to get parameter value and parsed it to <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns>Returns boolean if parameter value can be parsed or not</returns>
         bool TryGetParameter<T>(string key, out T result);
+
+        /// <summary>
+        /// Gets parameter value and parsed it to <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue">The default value to return if no result found</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="FormatException"></exception>
+        T GetParameter<T>(string key, T defaultValue = default);
 
         void ReThrowErrorsIfAny();
     }
