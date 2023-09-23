@@ -108,10 +108,9 @@ namespace TasqR
             tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
             await tasqHandlerInstance.InitializeAsync(tasq);
-            var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
             var listResult = new List<TResponse>();
 
-            foreach (var item in selectionCriteria)
+            await foreach (var item in tasqHandlerInstance.SelectionCriteriaAsync(tasq))
             {
                 await tasqHandlerInstance.BeforeRunAsync(tasq);
                 var runTask = tasqHandlerInstance.XRunAsync(item, tasq);
@@ -156,9 +155,8 @@ namespace TasqR
                 tasqHandlerInstance.p_CancellationToken = cancellationToken;
 
                 await tasqHandlerInstance.InitializeAsync(tasq);
-                var selectionCriteria = await tasqHandlerInstance.SelectionCriteriaAsync(tasq);
 
-                foreach (var item in selectionCriteria)
+                await foreach (var item in tasqHandlerInstance.SelectionCriteriaAsync(tasq))
                 {
                     await tasqHandlerInstance.BeforeRunAsync(tasq);
                     var runTask = tasqHandlerInstance.XRunAsync(item, tasq);

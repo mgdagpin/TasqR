@@ -26,12 +26,12 @@ namespace TasqR.Processing
         void IncrementTotalProcessed();
         void AttachJob(TaskJob job);
 
-        void TrackExecutionTime(string tag, object key = null);
+        void TrackExecutionTime(string tag, object? key = null);
 
 
-        void LogMessage(string message, object key = null);
-        void LogWarning(string message, object key = null);
-        void LogError(Exception exception, object key = null);
+        void LogMessage(string message, object? key = null);
+        void LogWarning(string message, object? key = null);
+        void LogError(Exception exception, object? key = null);
         void JobStarted();
         void Abort();
         void JobEnded();
@@ -53,7 +53,7 @@ namespace TasqR.Processing
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException"></exception>
-        T GetParameter<T>(string key, T defaultValue = default);
+        T GetParameter<T>(string key, T? defaultValue = default);
 
         void ReThrowErrorsIfAny();
     }

@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net48;netstandard2.1</TargetFrameworks>
-		<LangVersion>8.0</LangVersion>
+		<LangVersion>9.0</LangVersion>
 		<Authors>Vincent Dagpin, Marcelius Dagpin</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageIcon>TasqR.png</PackageIcon>
 		<Copyright>Copyright (c) 2023</Copyright>
-		<Version>1.5.1.9</Version>
+		<Version>1.5.2.1</Version>
 		<RepositoryUrl>https://github.com/mgdagpin/TasqR</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/mgdagpin/TasqR</PackageProjectUrl>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>

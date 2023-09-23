@@ -9,11 +9,11 @@ namespace TasqR.Processing
 {
     public class ProcessTracker : IProcessTracker
     {
-        protected ITasqR m_Processor;
-        protected TaskJob m_Job;
-        protected List<TaskLog> m_Logs = new List<TaskLog>();
+        protected ITasqR m_Processor = null!;
+        protected TaskJob m_Job = null!;
+        protected List<TaskLog> m_Logs = new();
 
-        private Stopwatch p_Watch = new Stopwatch();
+        private Stopwatch p_Watch = new();
 
         private bool jobIsAlreadyAttached;
         private int totalProcessed;
@@ -95,7 +95,7 @@ namespace TasqR.Processing
             }
         }
 
-        public virtual void TrackExecutionTime(string tag, object key = null)
+        public virtual void TrackExecutionTime(string tag, object? key = null)
         {
             if (CanTrackExecutionTime)
             {
@@ -107,7 +107,7 @@ namespace TasqR.Processing
             }            
         }
 
-        public virtual void LogError(Exception exception, object key = null)
+        public virtual void LogError(Exception exception, object? key = null)
         {
             m_Logs.Add(new TaskLog
             {
@@ -118,7 +118,7 @@ namespace TasqR.Processing
             });
         }
 
-        public virtual void LogMessage(string message, object key = null)
+        public virtual void LogMessage(string message, object? key = null)
         {
             m_Logs.Add(new TaskLog
             {
@@ -129,7 +129,7 @@ namespace TasqR.Processing
             });
         }
 
-        public virtual void LogWarning(string message, object key = null)
+        public virtual void LogWarning(string message, object? key = null)
         {
             m_Logs.Add(new TaskLog
             {
@@ -156,7 +156,7 @@ namespace TasqR.Processing
             return false;
         }
 
-        public T GetParameter<T>(string key, T defaultValue = default)
+        public T GetParameter<T>(string key, T? defaultValue = default)
         {
             if (m_Job != null
                 && m_Job.Parameters != null

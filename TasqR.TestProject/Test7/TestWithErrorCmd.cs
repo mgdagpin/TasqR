@@ -14,9 +14,9 @@ namespace TasqR.TestProject.Test7
 
     public class TestWithErrorCmdHandler : TasqHandlerAsync<TestWithErrorCmd, int, bool>
     {
-        public async override Task<IEnumerable> SelectionCriteriaAsync(TestWithErrorCmd request, CancellationToken cancellationToken)
+        public async override IAsyncEnumerable<int> SelectionCriteriaAsync(TestWithErrorCmd request, CancellationToken cancellationToken)
         {
-            return new[] { 1 };
+            yield return 1;
         }
 
         public override Task<bool> RunAsync(int key, TestWithErrorCmd tasq, CancellationToken cancellationToken = default)

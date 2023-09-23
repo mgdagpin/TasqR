@@ -18,11 +18,14 @@ namespace TasqR.TestProject.Test4
 
     public class CommandWithKeyAsyncHandler : TasqHandlerAsync<CommandWithKeyAsync, int, bool>
     {
-        public async override Task<IEnumerable> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
+        public async override IAsyncEnumerable<int> SelectionCriteriaAsync(CommandWithKeyAsync tasq, CancellationToken cancellationToken = default)
         {
             await Task.Delay(2000);
 
-            return tasq.TempData.Select(a => a.Key).ToList();
+            foreach (var item in tasq.TempData.Select(a => a.Key).ToList())
+            {
+                yield return item;
+            }
         }
 
         public async override Task<bool> RunAsync(int key, CommandWithKeyAsync process, CancellationToken cancellationToken = default)
