@@ -28,6 +28,7 @@ namespace TasqR.Processing
 
         void TrackExecutionTime(string tag, object? key = null);
 
+        void SetResult(object result);
 
         void LogMessage(string message, object? key = null);
         void LogWarning(string message, object? key = null);
@@ -54,6 +55,8 @@ namespace TasqR.Processing
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException"></exception>
         T GetParameter<T>(string key, T? defaultValue = default);
+
+        object? Result { get; }
 
         void ReThrowErrorsIfAny();
     }

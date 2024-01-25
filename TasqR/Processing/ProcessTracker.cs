@@ -28,6 +28,7 @@ namespace TasqR.Processing
 
         public virtual int Total { get; set; }
         public bool CanTrackExecutionTime { get; set; }
+        public object? Result { get; protected set; }
 
         public virtual void Initialize(ITasqR processor)
         {
@@ -178,6 +179,11 @@ namespace TasqR.Processing
 
                 ExceptionDispatchInfo.Capture(aggregateExceptions).Throw();
             }
+        }
+
+        public void SetResult(object result)
+        {
+            Result = result;
         }
     }
 }
