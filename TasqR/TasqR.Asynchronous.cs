@@ -18,6 +18,12 @@ namespace TasqR
             if (resolvedHandler.Handler is TasqHandler) 
             {
                 Run(tasq);
+
+                if (autoClearReference)
+                {
+                    ForcedHandlerDetail = null;
+                }
+
                 return;
             }
             else
@@ -63,7 +69,10 @@ namespace TasqR
                 }
             }
 
-                  
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
         }
         #endregion        
 
@@ -76,7 +85,14 @@ namespace TasqR
 
             if (resolvedHandler.Handler is TasqHandler)
             {
-                return Run(tasq);
+                var result = Run(tasq);
+
+                if (autoClearReference)
+                {
+                    ForcedHandlerDetail = null;
+                }
+
+                return result;
             }
             else
             {
@@ -91,7 +107,14 @@ namespace TasqR
 
                 await tasqHandlerInstance.AfterRunAsync(tasq);
 
-                return GetTaskResult<TResponse>(runTask);
+                var result = GetTaskResult<TResponse>(runTask);
+
+                if (autoClearReference)
+                {
+                    ForcedHandlerDetail = null;
+                }
+
+                return result;
             }
         }
         #endregion
@@ -127,6 +150,11 @@ namespace TasqR
                 {
                     break;
                 }
+            }
+
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
             }
 
             return listResult;
@@ -172,6 +200,11 @@ namespace TasqR
                         break;
                     }
                 }
+            }
+
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
             }
         }
         #endregion

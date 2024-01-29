@@ -81,6 +81,11 @@ namespace TasqR
                     tasqHandlerInstance.AfterRun(tasq);
                 }
             }
+
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
         }
         #endregion
 
@@ -93,7 +98,14 @@ namespace TasqR
 
             if (resolvedHandler.Handler is TasqHandlerAsync)
             {
-                return RunAsync(tasq).ConfigureAwait(false).GetAwaiter().GetResult();
+                var result = RunAsync(tasq).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                if (autoClearReference)
+                {
+                    ForcedHandlerDetail = null;
+                }
+
+                return result;
             }
             else
             {
@@ -103,6 +115,11 @@ namespace TasqR
                 tasqHandlerInstance.BeforeRun(tasq);
                 var retVal = (TResponse)tasqHandlerInstance.XRun(null, tasq);
                 tasqHandlerInstance.AfterRun(tasq);
+
+                if (autoClearReference)
+                {
+                    ForcedHandlerDetail = null;
+                }
 
                 return retVal;
             }
@@ -137,6 +154,11 @@ namespace TasqR
                 }
             }
 
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
+
             return result;
         }
 
@@ -169,6 +191,11 @@ namespace TasqR
                     }
                 }
             }
+
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
         }
         #endregion
 
@@ -188,6 +215,11 @@ namespace TasqR
         {
             var resolvedHandler = GetHandlerDetail(tasq);
 
+            if (autoClearReference)
+            {
+                ForcedHandlerDetail = null;
+            }
+
             return resolvedHandler.Reference.HandlerImplementation;
         }
 
@@ -197,12 +229,7 @@ namespace TasqR
 
             var handlerDetail = ForcedHandlerDetail != null
                 ? ForcedHandlerDetail
-                : p_TasqHandlerResolver.ResolveHandler(tasqType);
-
-            if (autoClearReference)
-            {
-                ForcedHandlerDetail = null;
-            }
+                : p_TasqHandlerResolver.ResolveHandler(tasqType);           
 
             return handlerDetail;
         }
