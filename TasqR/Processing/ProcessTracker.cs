@@ -20,7 +20,21 @@ namespace TasqR.Processing
 
         public Guid UID { get; private set; }
 
-        public virtual bool IsBatch { get; protected set; }
+        public virtual bool IsBatch
+        {
+            get
+            {
+                if (m_Job != null
+                    && m_Job.Parameters != null
+                    && m_Job.Parameters.GetAs<int>("SpecialGroupID") > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
         public virtual JobStatus JobStatus { get; protected set; }
 
         
@@ -47,13 +61,6 @@ namespace TasqR.Processing
             }
 
             m_Job = job;
-
-            if (m_Job != null 
-                && m_Job.Parameters != null 
-                && m_Job.Parameters.GetAs<int>("SpecialGroupID") > 0)
-            {
-                IsBatch = true;
-            }
 
             jobIsAlreadyAttached = true;
 

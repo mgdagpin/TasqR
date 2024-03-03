@@ -3,7 +3,7 @@ using static TasqR.Processing.Enums;
 
 namespace TasqR.Processing
 {
-    public interface IProcessTracker
+    public interface IProcess
     {
         bool CanTrackExecutionTime { get; set; }
 
@@ -22,6 +22,11 @@ namespace TasqR.Processing
         Guid UID { get; }
         bool IsBatch { get; }
 
+        object? Result { get; }
+    }
+
+    public interface IProcessTracker : IProcess
+    {       
         void Initialize(ITasqR processor);
         void IncrementTotalProcessed();
         void AttachJob(TaskJob job);
@@ -55,8 +60,6 @@ namespace TasqR.Processing
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException"></exception>
         T GetParameter<T>(string key, T? defaultValue = default);
-
-        object? Result { get; }
 
         void ReThrowErrorsIfAny();
     }
